@@ -39,6 +39,16 @@ after this command is executed
 $ ./gradlew copyDependencies
 ```
 
+how to import this project to eclipse
+-----------------
+```sh
+# generate eclipse configuration
+$ ./gradlew eclipse
+
+# import as existing project into eclipse
+
+```
+
 
 how to upgrade gradle
 -----------------
