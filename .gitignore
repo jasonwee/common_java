@@ -1,0 +1,10 @@
+.classpath
+.gradle
+.project
+.settings
+
+# ignore gradle build dir
+build
+
+# ignore ecilpse bin dir
+bin
