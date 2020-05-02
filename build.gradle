@@ -23,12 +23,39 @@ dependencies {
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:23.0'
+    // https://mvnrepository.com/artifact/javax.mail/javax.mail-api
+    //implementation 'javax.mail:javax.mail-api:1.6.2'
+    // https://mvnrepository.com/artifact/javax.activation/activation
+    //implementation 'javax.activation:activation:1.1'
+    // https://mvnrepository.com/artifact/com.sun.mail/javax.mail
+    implementation 'com.sun.mail:javax.mail:1.6.2'
 
-    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+    // Use JUnit test framework
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+    //testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    // https://stackoverflow.com/questions/46717693/eclipse-no-tests-found-using-junit-5-caused-by-noclassdeffounderror-for-launcher/47101722#47101722
+    testImplementation 'org.junit.platform:junit-platform-launcher:1.6.1'
+    // https://mvnrepository.com/artifact/org.mockito/mockito-all
+    // testImplementation 'org.mockito:mockito-all:1.10.19'
+    // https://mvnrepository.com/artifact/org.jdom/jdom
+    // https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.3.3'
+    // https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testImplementation 'org.mockito:mockito-core:3.3.3'
+    // power mockito does not work with junit5 yet
+    //testImplementation 'org.powermock:powermock-api-mockito2:2.0.7'
 }
 
 test {
     useJUnitPlatform()
 }
+
+//---- dump all current dependencies to dependencies dir
+task copyDependencies(type: Copy) {
+   from configurations.compileClasspath
+   into 'dependencies'
+}
+//---- dump all current dependencies to dependencies dir
 
