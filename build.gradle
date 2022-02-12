@@ -30,22 +30,27 @@ dependencies {
     // https://mvnrepository.com/artifact/com.sun.mail/javax.mail
     implementation 'com.sun.mail:javax.mail:1.6.2'
 
-    // Use JUnit test framework
-    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-    //testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
-    // https://stackoverflow.com/questions/46717693/eclipse-no-tests-found-using-junit-5-caused-by-noclassdeffounderror-for-launcher/47101722#47101722
-    testImplementation 'org.junit.platform:junit-platform-launcher:1.6.1'
-    // https://mvnrepository.com/artifact/org.mockito/mockito-all
-    // testImplementation 'org.mockito:mockito-all:1.10.19'
-    // https://mvnrepository.com/artifact/org.jdom/jdom
-    // https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter
-    testImplementation 'org.mockito:mockito-junit-jupiter:3.3.3'
-    // https://mvnrepository.com/artifact/org.mockito/mockito-core
-    testImplementation 'org.mockito:mockito-core:3.3.3'
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+
+
+    // JUnit 5 (jupiter) and mockito dependencies
+    // Since the mockito-inline library replaced the mockito-core library it is possible to mock final classes and static methods
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.mockito:mockito-inline:4.3.1'
+    // Note that junit-jupiter-engine is the main JUnit 5 library, and junit-platform-launcher is used with the Maven plugin and IDE launcher.
+    testImplementation 'org.junit.platform:junit-platform-launcher:1.8.2'
+    // Maven Surefire plugin to run our test classes using the new JUnit platform launcher
+    testImplementation 'org.junit.platform:junit-platform-surefire-provider:1.3.2'
+    // JUnit4 (vintage) compatible, for IDEs that have no support for JUnit 5 yet, let's include these dependencies
+    testImplementation 'org.junit.platform:junit-platform-runner:1.8.2'
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.8.2'
+    // Mockito provides an implementation for JUnit5 extensions in the library mockito-junit-jupiter
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.3.1'
+
     // power mockito does not work with junit5 yet
     //testImplementation 'org.powermock:powermock-api-mockito2:2.0.7'
+
 }
 
 test {
