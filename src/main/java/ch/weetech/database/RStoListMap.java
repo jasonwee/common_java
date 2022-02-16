@@ -55,7 +55,8 @@ public class RStoListMap {
         resultSet.first();
 
         // fill HashMap with put(columnName, data)
-        if (numberOfRows != 0)
+        if (numberOfRows != 0)  {
+
             do {
 
                 SQLWarning warning = resultSet.getWarnings();
@@ -84,10 +85,11 @@ public class RStoListMap {
                     } catch (NullPointerException e) {
                         linkedHashMap.put(columnNames[i], null);
                     }
-                    hashResults.add(linkedHashMap);
                 }
+                hashResults.add(linkedHashMap);
 
             } while (resultSet.next());
+        }
 
         return hashResults;
 
