@@ -12,6 +12,10 @@ apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
+group = "ch.weetech"
+archivesBaseName = "common-java"
+version = "0.0.1"
+
 // In this section you declare where to find the dependencies of your project
 repositories {
     // Use jcenter for resolving your dependencies.
@@ -67,4 +71,67 @@ task copyDependencies(type: Copy) {
    into 'dependencies'
 }
 //---- dump all current dependencies to dependencies dir
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'common-java'
+        packaging 'jar'
+        // optionally artifactId can be defined here
+        description 'java common utilities'
+        url 'https://github.com/jasonwee/common_java'
+
+        scm {
+          connection 'scm:git:git://github.com/jasonwee/common_java.git'
+          developerConnection 'scm:git:ssh://github.com:jasonwee/common_java.git'
+          url 'https://github.com/jasonwee/common_java.git'
+        }
+
+        licenses {
+          license {
+            name 'The Apache License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+          }
+        }
+
+        developers {
+          developer {
+            id 'jasonwee'
+            name 'Jason Wee'
+            email 'jason@weetech.ch'
+          }
+        }
+      }
+    }
+  }
+}
 
