@@ -14,7 +14,7 @@ apply plugin: 'signing'
 
 group = "ch.weetech"
 archivesBaseName = "common-java"
-version = "0.0.1"
+version = "0.0.2"
 
 // In this section you declare where to find the dependencies of your project
 repositories {
