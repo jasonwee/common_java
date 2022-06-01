@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package co.weetech.properties;
+package ch.weetech.properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 

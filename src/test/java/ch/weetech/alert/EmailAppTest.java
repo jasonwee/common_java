@@ -1,4 +1,4 @@
-package co.weetech.alert;
+package ch.weetech.alert;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;

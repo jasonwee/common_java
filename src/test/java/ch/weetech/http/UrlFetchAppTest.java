@@ -1,4 +1,4 @@
-package co.weetech.http;
+package ch.weetech.http;
 
 import static org.junit.jupiter.api.Assertions.*;
 

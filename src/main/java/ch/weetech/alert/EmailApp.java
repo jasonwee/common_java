@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package co.weetech.alert;
+package ch.weetech.alert;
 
 import java.util.List;
 import java.util.Map;

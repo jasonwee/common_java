@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package co.weetech.http;
+package ch.weetech.http;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
