@@ -1,54 +1,16 @@
-export environment java home 
-```sh
+
+
+# where to get this lib?
+https://mvnrepository.com/artifact/ch.weetech/common-java
+
+
+# quick build
+```
 $ export JAVA_HOME=/usr/lib/jvm/jdk-11.0.5/
-```
-
-one time project setup
----------------------
-```sh
-$ gradle init --type java-library 
-$ gradle wrapper --gradle-version=6.0.1 
-```
-
-how to build
------------------
-```sh
-$ ./gradlew build
-```
-
-how to test
------------------
-```sh
-$ # test everything
-$ ./gradlew test
-
-$ # test specific tests
-$ ./gradlew test --tests *test1
-
-$ # test a class
-$ ./gradlew test --tests HttpTest
+$ ./gradlew clean build
 ```
 
 
+# DEVELOPMENT
+see  [DEVELOPMENT.md](DEVELOPMENT.md)
 
-how do I dump all current project dependencies to a folder?
------------------
-all the current dependencies should be available in depdencies folder
-after this command is executed
-```sh
-$ ./gradlew copyDependencies
-```
-
-how to import this project to eclipse
------------------
-```sh
-# generate eclipse configuration
-$ ./gradlew eclipse
-
-# import as existing project into eclipse
-
-```
-
-
-how to upgrade gradle
------------------
