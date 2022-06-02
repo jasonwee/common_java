@@ -20,6 +20,8 @@ package ch.weetech.properties;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
@@ -56,6 +58,12 @@ public class ConfigTest {
         } catch (IOException e) {
             e.printStackTrace();
             fail("should not fail");
+        } finally {
+            try {
+                Files.deleteIfExists(Path.of("./src/test/resources/database-test.properties"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
