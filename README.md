@@ -1,7 +1,7 @@
 
 
 # where to get this lib?
-https://mvnrepository.com/artifact/ch.weetech/common-java
+[maven](https://mvnrepository.com/artifact/ch.weetech/common-java)
 
 
 # quick build
