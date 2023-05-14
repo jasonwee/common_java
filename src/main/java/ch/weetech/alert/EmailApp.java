@@ -171,4 +171,22 @@ public class EmailApp {
         return true;
 	}
 
+	public static boolean isValidEmail(String email) {
+		if (email == null) {
+			return false;
+		}
+		if (email.length() >= 320) {
+			return false;
+		}
+
+		boolean result = true;
+		   try {
+		      InternetAddress emailAddr = new InternetAddress(email);
+		      emailAddr.validate();
+		   } catch (AddressException ex) {
+		      result = false;
+		   }
+		   return result;
+	}
+
 }

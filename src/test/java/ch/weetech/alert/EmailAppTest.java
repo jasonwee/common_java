@@ -1,5 +1,6 @@
 package ch.weetech.alert;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
@@ -86,5 +87,14 @@ public class EmailAppTest {
 		}
 
     }
+
+	@Test
+    public void testValidEmail() {
+		assertFalse(EmailApp.isValidEmail(null));
+		assertFalse(EmailApp.isValidEmail(""));
+		assertFalse(EmailApp.isValidEmail("i-am-a-long-character-1i-am-a-long-character-2i-am-a-long-character-3i-am-a-long-character-4i-am-a-long-character-5i-am-a-long-character-6i-am-a-long-character-7i-am-a-long-character-8i-am-a-long-character-9i-am-a-long-character-10i-am-a-long-character-11i-am-a-long-character-12i-am-a-long-character-13i-am-a-long-character-14@foo-bar-1foo-bar-2foo-bar-3foo-bar-4foo-bar-5foo-bar-6foo-bar-7foo-bar-8foo-bar-9foo-bar-10.com"));
+		assertTrue(EmailApp.isValidEmail("foo@bar.com"));
+		assertTrue(EmailApp.isValidEmail("foo+jason@bar.com"));
+	}
 
 }
