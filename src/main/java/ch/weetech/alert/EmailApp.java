@@ -179,14 +179,15 @@ public class EmailApp {
 			return false;
 		}
 
-		boolean result = true;
-		   try {
-		      InternetAddress emailAddr = new InternetAddress(email);
-		      emailAddr.validate();
-		   } catch (AddressException ex) {
-		      result = false;
-		   }
-		   return result;
+		boolean result = false;
+		try {
+			InternetAddress emailAddr = new InternetAddress(email);
+			emailAddr.validate();
+			result = true;
+		} catch (AddressException ex) {
+
+		}
+		return result;
 	}
 
 }
