@@ -33,7 +33,7 @@ $ ./gradlew test --tests HttpTest
 
 how do I dump all current project dependencies to a folder?
 -----------------
-all the current dependencies should be available in depdencies folder
+all the current dependencies should be available in dependencies folder
 after this command is executed
 ```sh
 $ ./gradlew copyDependencies
@@ -67,7 +67,7 @@ Deployment
 
 2. login to https://s01.oss.sonatype.org/#stagingRepositories
    click close
-   if all verificaitons run ok,  then click release
+   if all verifications run ok,  then click release
 
 3. check release
    https://mvnrepository.com/search?q=ch.weetech
