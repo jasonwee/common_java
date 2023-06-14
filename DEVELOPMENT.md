@@ -52,7 +52,21 @@ $ ./gradlew eclipse
 
 how to upgrade gradle
 -----------------
-
+1. check current version first
+```
+$ export JAVA_HOME=/usr/lib/jvm/jdk-11.0.5/
+$ ./gradlew --version
+```
+2. check gradle current release version at https://gradle.org/releases/
+3. upgrade it if no problem
+```
+$ ./gradlew wrapper --gradle-version 6.1.1
+```
+4. check again version and test build
+```
+$ ./gradlew --version
+$ ./gradlew clean build
+```
 
 
 
