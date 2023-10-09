@@ -24,10 +24,10 @@ public class IP {
      *
      * Check if IP is within an Subnet defined by Network Address and Network Mask
      *
-     * @param ip
-     * @param net
-     * @param mask
-     * @return
+     * @param ip ip address
+     * @param net network address
+     * @param prefix network mask in integer
+     * @return true if ip address whthin network address range
      */
     public static final boolean isIpInSubnet(final String ip, final String net, final int prefix) {
         try {
@@ -58,10 +58,10 @@ public class IP {
      *
      * Check if IP is within an Subnet defined by Network Address and Network Mask
      *
-     * @param ip
-     * @param net
-     * @param mask
-     * @return
+     * @param ip ip address
+     * @param net network address
+     * @param mask network address mask
+     * @return true if ip address whthin network address range
      */
     public static final boolean isIpInSubnet(final String ip, final String net, final String mask) {
         try {
