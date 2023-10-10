@@ -30,12 +30,11 @@ public class IPTest {
         assertTrue(IP.isIpInSubnet("192.168.2.1", "192.168.2.1", "255.255.255.255"));
         assertTrue(IP.isIpInSubnet("192.168.2.5", "192.168.2.0", "255.255.255.0"));
         assertTrue(IP.isIpInSubnet("10.10.20.3", "10.10.20.0", "255.255.255.252"));
-        assertTrue(IP.isIpInSubnet("192.200.0.0", "10.10.20.0", "255.255.255.252"));
 
         assertFalse(IP.isIpInSubnet("192.168.2.1", "192.168.2.0", "255.255.255.255"));
         assertFalse(IP.isIpInSubnet("10.10.20.5", "10.10.20.0", "255.255.255.252"));
         assertFalse(IP.isIpInSubnet("10.10.0.1", "192.168.0.0", "255.255.255.0"));
-
+        assertFalse(IP.isIpInSubnet("192.200.0.0", "10.10.20.0", "255.255.255.252"));
     }
 
     @Test
