@@ -25,10 +25,11 @@ repositories {
 
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api 'org.apache.commons:commons-math3:3.6.1'
+    //api 'org.apache.commons:commons-math3:3.6.1'
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'com.google.guava:guava:31.1-jre'
+    //implementation 'com.google.guava:guava:31.1-jre'
+
     // https://mvnrepository.com/artifact/javax.mail/javax.mail-api
     //implementation 'javax.mail:javax.mail-api:1.6.2'
     // https://mvnrepository.com/artifact/javax.activation/activation
@@ -37,9 +38,9 @@ dependencies {
     implementation 'com.sun.mail:javax.mail:1.6.2'
 
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
     // https://mvnrepository.com/artifact/mysql/mysql-connector-java
-    implementation 'mysql:mysql-connector-java:8.0.28'
+    implementation 'mysql:mysql-connector-java:8.0.33'
 
 
     // JUnit 5 (jupiter) and mockito dependencies
