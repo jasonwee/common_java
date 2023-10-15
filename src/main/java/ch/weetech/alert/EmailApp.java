@@ -37,121 +37,121 @@ import javax.mail.internet.MimeMultipart;
 
 /**
  * https://developers.google.com/apps-script/reference/mail
- * 
+ *
  * https://www.tutorialspoint.com/java/java_sending_email.htm
  * https://mkyong.com/java/java-how-to-send-email/
  * https://www.javatpoint.com/example-of-sending-email-using-java-mail-api
- * 
+ *
  * @author jason
  *
  */
 public class EmailApp {
 
-	// support bcc?
-	// support sender name?
-	public static boolean sendText(String from, List<String> recipients, List<String> cc, String subject, String body, 
-			List<Object> attachments, Map<String, String> smtp, boolean debug) throws AddressException, MessagingException {
+    // support bcc?
+    // support sender name?
+    public static boolean sendText(String from, List<String> recipients, List<String> cc, String subject, String body,
+            List<Object> attachments, Map<String, String> smtp, boolean debug) throws AddressException, MessagingException {
         Properties prop = System.getProperties();
 
         prop.put("mail.smtp.host", "localhost");
         prop.put("mail.smtp.port", "25");
-        
+
         if (smtp != null) {
-        	prop.put("mail.smtp.host", smtp.getOrDefault("mail.smtp.host", "localhost"));
+            prop.put("mail.smtp.host", smtp.getOrDefault("mail.smtp.host", "localhost"));
             prop.put("mail.smtp.port", smtp.getOrDefault("mail.smtp.port", "25"));
         }
-        
+
         if (debug)
-        	prop.put("mail.debug", "true");
-        
+            prop.put("mail.debug", "true");
+
         Session session = null;
         if (smtp != null && smtp.get("mail.smtp.auth") != null) {
-        	prop.put("mail.smtp.auth", smtp.get("mail.smtp.auth"));
-        	prop.put("mail.smtp.starttls.enable", smtp.getOrDefault("mail.smtp.starttls.enable", "false"));
-        	
+            prop.put("mail.smtp.auth", smtp.get("mail.smtp.auth"));
+            prop.put("mail.smtp.starttls.enable", smtp.getOrDefault("mail.smtp.starttls.enable", "false"));
+
             //session = Session.getDefaultInstance(prop, auth);
             session = Session.getDefaultInstance(prop, new Authenticator() {
-            	 public PasswordAuthentication getPasswordAuthentication() {
+                 public PasswordAuthentication getPasswordAuthentication() {
                      String username = smtp.getOrDefault("mail.smtp.username", "");
                      String password = smtp.getOrDefault("mail.smtp.password", "");
                      return new PasswordAuthentication(username, password);
                   }
-			});
+            });
         } else {
-        	session = Session.getInstance(prop, null);
+            session = Session.getInstance(prop, null);
         }
 
         Message msg = new MimeMessage(session);
 
         msg.setFrom(new InternetAddress(from));
         msg.addRecipients(Message.RecipientType.TO, recipients.stream()
-        		.map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
-        		.toArray(InternetAddress[]::new)  
+                .map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
+                .toArray(InternetAddress[]::new)
         );
         if (cc != null)
-        	msg.addRecipients(Message.RecipientType.CC, cc.stream()
-        			.map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
-        			.toArray(InternetAddress[]::new)
-        	);
+            msg.addRecipients(Message.RecipientType.CC, cc.stream()
+                    .map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
+                    .toArray(InternetAddress[]::new)
+            );
 
         msg.setSubject(subject);
         msg.setText(body);
-		
-		// send
+
+        // send
         try (Transport t = session.getTransport()) {
-        	t.connect();
+            t.connect();
             t.sendMessage(msg, msg.getAllRecipients());
         }
 
         return true;
-	}
+    }
 
-	public static boolean sendHtml(String from, List<String> recipients, List<String> cc, String subject, String msgHtml, 
-			List<Object> attachments, Map<String, String> smtp, boolean debug) throws AddressException, MessagingException {
+    public static boolean sendHtml(String from, List<String> recipients, List<String> cc, String subject, String msgHtml,
+            List<Object> attachments, Map<String, String> smtp, boolean debug) throws AddressException, MessagingException {
         Properties prop = System.getProperties();
         prop.put("mail.smtp.host", "localhost");
         prop.put("mail.smtp.port", "25");
-        
+
         if (smtp != null) {
-        	prop.put("mail.smtp.host", smtp.getOrDefault("mail.smtp.host", "localhost"));
+            prop.put("mail.smtp.host", smtp.getOrDefault("mail.smtp.host", "localhost"));
             prop.put("mail.smtp.port", smtp.getOrDefault("mail.smtp.port", "25"));
         }
-        
+
         if (debug)
-        	prop.put("mail.debug", "true");
-        
+            prop.put("mail.debug", "true");
+
         Session session = null;
         if (smtp != null && smtp.get("mail.smtp.auth") != null) {
-        	prop.put("mail.smtp.auth", smtp.get("mail.smtp.auth"));
-        	prop.put("mail.smtp.starttls.enable", smtp.getOrDefault("mail.smtp.starttls.enable", "false"));
-        	
+            prop.put("mail.smtp.auth", smtp.get("mail.smtp.auth"));
+            prop.put("mail.smtp.starttls.enable", smtp.getOrDefault("mail.smtp.starttls.enable", "false"));
+
             //session = Session.getDefaultInstance(prop, auth);
             session = Session.getDefaultInstance(prop, new Authenticator() {
-            	 public PasswordAuthentication getPasswordAuthentication() {
+                 public PasswordAuthentication getPasswordAuthentication() {
                      String username = smtp.getOrDefault("mail.smtp.username", "");
                      String password = smtp.getOrDefault("mail.smtp.password", "");
                      return new PasswordAuthentication(username, password);
                   }
-			});
+            });
         } else {
-        	session = Session.getInstance(prop, null);
+            session = Session.getInstance(prop, null);
         }
 
         MimeMessage msg = new MimeMessage(session);
 
         msg.setFrom(new InternetAddress(from));
-        
+
         msg.setFrom(new InternetAddress(from));
         msg.addRecipients(Message.RecipientType.TO, recipients.stream()
-        		.map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
-        		.toArray(InternetAddress[]::new)  
+                .map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
+                .toArray(InternetAddress[]::new)
         );
         if (cc != null)
-        	msg.addRecipients(Message.RecipientType.CC, cc.stream()
-        			.map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
-        			.toArray(InternetAddress[]::new)
-        	);
-        
+            msg.addRecipients(Message.RecipientType.CC, cc.stream()
+                    .map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
+                    .toArray(InternetAddress[]::new)
+            );
+
         msg.setSubject(subject, "UTF-8");
 
         MimeMultipart content = new MimeMultipart("alternative");
@@ -163,31 +163,31 @@ public class EmailApp {
 
         msg.setContent(content, "UTF-8");
 
-		// send
+        // send
         try (Transport t = session.getTransport()) {
-        	t.connect();
+            t.connect();
             t.sendMessage(msg, msg.getAllRecipients());
         }
         return true;
-	}
+    }
 
-	public static boolean isValidEmail(String email) {
-		if (email == null) {
-			return false;
-		}
-		if (email.length() >= 320) {
-			return false;
-		}
+    public static boolean isValidEmail(String email) {
+        if (email == null) {
+            return false;
+        }
+        if (email.length() >= 320) {
+            return false;
+        }
 
-		boolean result = false;
-		try {
-			InternetAddress emailAddr = new InternetAddress(email);
-			emailAddr.validate();
-			result = true;
-		} catch (AddressException ex) {
+        boolean result = false;
+        try {
+            InternetAddress emailAddr = new InternetAddress(email);
+            emailAddr.validate();
+            result = true;
+        } catch (AddressException ex) {
 
-		}
-		return result;
-	}
+        }
+        return result;
+    }
 
 }
