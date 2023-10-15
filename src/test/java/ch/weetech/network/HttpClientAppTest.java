@@ -22,6 +22,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,8 +59,23 @@ public class HttpClientAppTest {
     }
     
     @Test
-    public void testHttpPost() {
-        System.out.println("implement me");
+    public void testHttpPost() throws IOException, InterruptedException {
+        String mockResponse = "{ \"id\": \"101\"}" ;
+        when(httpClient.send(any(), any())).thenReturn(httpResponse);
+        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpResponse.body()).thenReturn(mockResponse);
+        Map<Object, Object> data = new HashMap<>();
+        data.put("username", "abc");
+        data.put("password", "123");
+        data.put("custom", "secret");
+        data.put("ts", System.currentTimeMillis());
+
+        HttpClientApp tester = new HttpClientApp(httpClient);
+        HttpResponse response = tester.post("https://dummyjson.com/products/add", data);
+        assertNotNull(response);
+        assertEquals(response.getStatusCode(), 200);
+        assertTrue(response.getContent().length() > 0);
+        assertEquals(response.getContent(), mockResponse);
     }
 
 }
