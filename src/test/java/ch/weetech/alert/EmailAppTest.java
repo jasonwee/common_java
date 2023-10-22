@@ -1,100 +1,108 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.weetech.alert;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.when;
 
-
-import java.util.HashMap;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Map;
 
 import javax.mail.MessagingException;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-
+/*
+ * TODO
+ * re-enable sendTextViaSMTP
+ * re-enable sendTextViaLocalhost
+ * test email with text attachment
+ * test email with binary attachment
+ *
+ */
 public class EmailAppTest {
 
 
-	@Disabled("write when powermockito support junit5")
-	@Test
+    @Disabled("write when powermockito support junit5")
+    @Test
     public void sendTextViaSMTP() {
-		
-		String from = "noreply@foo.com";
-		List<String> recipients = List.of("jason@bar.com");
-		List<String> cc = null;
-		String subject = "email subject";
-		String body = "Hello, this is a test.";
-		List<Object> attachments = null;
-		Map<String, String> smtp = new HashMap<String, String>();
-		smtp.put("mail.smtp.auth", "true");
-		smtp.put("mail.smtp.port", "587");
-		smtp.put("mail.smtp.host", "mymail.smtp.com");
-		smtp.put("mail.smtp.username", "jason@foo.com");
-		smtp.put("mail.smtp.password", "");
-		
-		try {			
-			//when(EmailApp.sendText(from, recipients, cc, subject, body, attachments, smtp, true)).thenReturn(true);
-			
-			assertTrue(EmailApp.sendText(from, recipients, cc, subject, body, attachments, smtp, true));
-		} catch (MessagingException e) {
-			e.printStackTrace();
-			fail("must not fail");
-		}
+        SMTP smtp = new SMTP.Builder("mymail.smtp.com", 587)
+                .smtpAuth(true)
+                .smtpUsername("jason@foo.com")
+                .smtpPassword("")
+                .build();
+        EmailAddress from = new EmailAddress.Builder("noreply@foo.com").name("No Reply").build();
+        List<EmailAddress> recipients = List.of(new EmailAddress.Builder("jason@bar.com").build());
+        List<EmailAddress> cc = null;
+        List<EmailAddress> bcc = null;
+        String subject = "email subject";
+        EmailBody body = new EmailBody.Builder("Hello, this is a test.", "text/plain; charset=UTF-8").build();
+        List<EmailAttachment> attachments = null;
+
+        try {
+            //when(EmailApp.sendText(from, recipients, cc, subject, body, attachments, smtp, true)).thenReturn(true);
+
+            assertTrue(EmailApp.sendText(from, recipients, cc, bcc, subject, body, attachments, smtp, true));
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            fail("must not fail");
+        }
     }
-	
-	@Disabled("write when powermockito support junit5")
-	@Test
+
+    @Disabled("write when powermockito support junit5")
+    @Test
     public void sendTextViaLocalhost() {
-		String from = "noreply@foo.com";
-		List<String> recipients = List.of("jason@bar.com");
-		List<String> cc = null;
-		String subject = "email subject";
-		String body = "Hello, this is a test.";
-		Map<String, String> smtp = new HashMap<String, String>();		
-		
-		try {
-			assertTrue(EmailApp.sendText(from, recipients, cc, subject, body, null, smtp, true));
-		} catch (MessagingException e) {
-			e.printStackTrace();
-			fail("must not fail");
-		}
+        SMTP smtp = new SMTP.Builder("localhost", 25).build();
+        EmailAddress from = new EmailAddress.Builder("noreply@foo.com").name("No Reply").build();
+        List<EmailAddress> recipients = List.of(new EmailAddress.Builder("jason@bar.com").build());
+        List<EmailAddress> cc = null;
+        List<EmailAddress> bcc = null;
+        String subject = "email subject";
+        EmailBody body = new EmailBody.Builder("Hello, this is a test.", "text/plain; charset=us-ascii").build();
+        List<EmailAttachment> attachments = null;
+
+        try {
+            assertTrue(EmailApp.sendText(from, recipients, cc, bcc, subject, body, attachments, smtp, true));
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            fail("must not fail");
+        }
     }
-	
-	@Disabled("write when powermockito support junit5")
-	@Test
+
+    @Disabled("write when powermockito support junit5")
+    @Test
     public void sendHTML() {
-		String from = "noreply@foo.com";
-		List<String> recipients = List.of("jason@bar.com");
-		List<String> cc = null;
-		String subject = "email  好";
-		String body = "<p>Hello, this is a test.</p>";
-		Map<String, String> smtp = new HashMap<String, String>();
-		smtp.put("mail.smtp.auth", "true");
-		smtp.put("mail.smtp.port", "587");
-		smtp.put("mail.smtp.host", "mymail.smtp.com");
-		smtp.put("mail.smtp.username", "jason@foo.com");
-		smtp.put("mail.smtp.password", "");
-		
-		try {
-			assertTrue(EmailApp.sendHtml(from, recipients, cc, subject, body, null, smtp, true));
-		} catch (MessagingException e) {
-			e.printStackTrace();
-			fail("must not fail");
-		}
+        EmailAddress from = new EmailAddress.Builder("noreply@foo.com").build();
+        List<EmailAddress> recipients = List.of(new EmailAddress.Builder("jason@bar.com").build());
+        List<EmailAddress> cc = null;
+        List<EmailAddress> bcc = null;
+        String subject = "email  好";
+        EmailBody body = new EmailBody.Builder("<p>Hello, this is a test.</p>", "text/html; charset=\"UTF-8\"").build();
+        SMTP smtp = new SMTP.Builder("mymail.smtp.com", 587).smtpAuth(true).smtpUsername("jason@foo.com").smtpPassword("").build();
+
+        try {
+            assertTrue(EmailApp.sendHtml(from, recipients, cc, bcc, subject, body, null, smtp, true));
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            fail("must not fail");
+        }
 
     }
-
-	@Test
-    public void testValidEmail() {
-		assertFalse(EmailApp.isValidEmail(null));
-		assertFalse(EmailApp.isValidEmail(""));
-		assertFalse(EmailApp.isValidEmail("i-am-a-long-character-1i-am-a-long-character-2i-am-a-long-character-3i-am-a-long-character-4i-am-a-long-character-5i-am-a-long-character-6i-am-a-long-character-7i-am-a-long-character-8i-am-a-long-character-9i-am-a-long-character-10i-am-a-long-character-11i-am-a-long-character-12i-am-a-long-character-13i-am-a-long-character-14@foo-bar-1foo-bar-2foo-bar-3foo-bar-4foo-bar-5foo-bar-6foo-bar-7foo-bar-8foo-bar-9foo-bar-10.com"));
-		assertTrue(EmailApp.isValidEmail("foo@bar.com"));
-		assertTrue(EmailApp.isValidEmail("foo+jason@bar.com"));
-	}
 
 }

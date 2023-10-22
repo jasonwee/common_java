@@ -17,8 +17,10 @@
  */
 package ch.weetech.alert;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
@@ -47,33 +49,29 @@ import javax.mail.internet.MimeMultipart;
  */
 public class EmailApp {
 
-    // support bcc?
-    // support sender name?
-    public static boolean sendText(String from, List<String> recipients, List<String> cc, String subject, String body,
-            List<Object> attachments, Map<String, String> smtp, boolean debug) throws AddressException, MessagingException {
+    public static boolean sendText(EmailAddress from, List<EmailAddress> recipients, List<EmailAddress> cc, List<EmailAddress> bcc, String subject, EmailBody body,
+            List<EmailAttachment> attachments, SMTP smtp, boolean debug) throws AddressException, MessagingException, UnsupportedEncodingException {
+        assert smtp != null;
+        assert recipients != null;
+        assert recipients.size() > 0;
+
         Properties prop = System.getProperties();
-
-        prop.put("mail.smtp.host", "localhost");
-        prop.put("mail.smtp.port", "25");
-
-        if (smtp != null) {
-            prop.put("mail.smtp.host", smtp.getOrDefault("mail.smtp.host", "localhost"));
-            prop.put("mail.smtp.port", smtp.getOrDefault("mail.smtp.port", "25"));
-        }
+        prop.put(SMTP.MAIL_SMTP_HOST, smtp.getSmtpHost());
+        prop.put(SMTP.MAIL_SMTP_PORT, smtp.getSmtpPort());
 
         if (debug)
             prop.put("mail.debug", "true");
 
         Session session = null;
-        if (smtp != null && smtp.get("mail.smtp.auth") != null) {
-            prop.put("mail.smtp.auth", smtp.get("mail.smtp.auth"));
-            prop.put("mail.smtp.starttls.enable", smtp.getOrDefault("mail.smtp.starttls.enable", "false"));
+        if (smtp.isSmtpAuth()) {
+            prop.put(SMTP.MAIL_SMTP_AUTH, smtp.isSmtpAuth());
+            prop.put(SMTP.MAIL_SMTP_STARTTLS_ENABLE, smtp.isSmtpStartTlsEnable());
 
             //session = Session.getDefaultInstance(prop, auth);
             session = Session.getDefaultInstance(prop, new Authenticator() {
                  public PasswordAuthentication getPasswordAuthentication() {
-                     String username = smtp.getOrDefault("mail.smtp.username", "");
-                     String password = smtp.getOrDefault("mail.smtp.password", "");
+                     String username = smtp.getSmtpUsername();
+                     String password = smtp.getSmtpPassword();
                      return new PasswordAuthentication(username, password);
                   }
             });
@@ -83,19 +81,88 @@ public class EmailApp {
 
         Message msg = new MimeMessage(session);
 
-        msg.setFrom(new InternetAddress(from));
-        msg.addRecipients(Message.RecipientType.TO, recipients.stream()
-                .map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
-                .toArray(InternetAddress[]::new)
+        if (from.getName() != null) {
+            msg.setFrom(new InternetAddress(from.getAddress(), from.getName(), StandardCharsets.UTF_8.name()));
+        } else {
+            msg.setFrom(new InternetAddress(from.getAddress()));
+        }
+
+        msg.addRecipients(Message.RecipientType.TO,
+                recipients.stream().map(r -> {
+                    try {
+                        if (r.getName() != null) {
+                            return new InternetAddress(r.getAddress(), r.getName(), StandardCharsets.UTF_8.name());
+                        } else {
+                            return new InternetAddress(r.getAddress());
+                        }
+
+                    } catch (AddressException | UnsupportedEncodingException e) { }
+                    return null;
+                }).toArray(InternetAddress[]::new)
         );
-        if (cc != null)
-            msg.addRecipients(Message.RecipientType.CC, cc.stream()
-                    .map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
+
+        if (cc != null) {
+            msg.addRecipients(Message.RecipientType.CC,
+                    cc.stream().map(ccc -> {
+                        try {
+                            if (ccc.getName() != null) {
+                                return new InternetAddress(ccc.getAddress(), ccc.getName(), StandardCharsets.UTF_8.name());
+                            } else {
+                                return new InternetAddress(ccc.getAddress());
+                            }
+
+                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        return null;
+                    })
                     .toArray(InternetAddress[]::new)
             );
+        }
 
-        msg.setSubject(subject);
-        msg.setText(body);
+        if (bcc != null) {
+            msg.addRecipients(Message.RecipientType.BCC,
+                    bcc.stream().map(bccc -> {
+                        try {
+                            if (bccc.getName() != null) {
+                                return new InternetAddress(bccc.getAddress(), bccc.getName(), StandardCharsets.UTF_8.name());
+                            } else {
+                                return new InternetAddress(bccc.getAddress());
+                            }
+
+                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        return null;
+                    })
+                    .toArray(InternetAddress[]::new)
+            );
+        }
+
+
+        if (attachments != null) {
+            MimeMultipart altAndAtt = new MimeMultipart(Email.Type.mixed.toString());
+
+            MimeBodyPart plain = new MimeBodyPart();
+            plain.setContent(body.getContent(), body.getContent());
+            altAndAtt.addBodyPart(plain);
+
+            for (EmailAttachment ea : attachments) {
+                MimeBodyPart messageBodyPart = new MimeBodyPart();
+                try {
+                    if (ea.getContentType().equals("text/plain")) {
+                        messageBodyPart.setText(ea.getContent());
+                        messageBodyPart.setFileName(ea.getName());
+                    } else {
+                        messageBodyPart.attachFile(ea.getFile());
+                        messageBodyPart.setFileName(ea.getName());
+                    }
+                } catch (IOException e) {
+
+                }
+                altAndAtt.addBodyPart(messageBodyPart);
+            }
+            msg.setContent(altAndAtt);
+        } else {
+            msg.setSubject(subject);
+            msg.setText(body.getContent());
+        }
 
         // send
         try (Transport t = session.getTransport()) {
@@ -106,30 +173,29 @@ public class EmailApp {
         return true;
     }
 
-    public static boolean sendHtml(String from, List<String> recipients, List<String> cc, String subject, String msgHtml,
-            List<Object> attachments, Map<String, String> smtp, boolean debug) throws AddressException, MessagingException {
-        Properties prop = System.getProperties();
-        prop.put("mail.smtp.host", "localhost");
-        prop.put("mail.smtp.port", "25");
+    public static boolean sendHtml(EmailAddress from, List<EmailAddress> recipients, List<EmailAddress> cc, List<EmailAddress> bcc, String subject, EmailBody msgHtml,
+            List<EmailAttachment> attachments, SMTP smtp, boolean debug) throws AddressException, MessagingException, UnsupportedEncodingException {
+        assert smtp != null;
+        assert recipients != null;
+        assert recipients.size() > 0;
 
-        if (smtp != null) {
-            prop.put("mail.smtp.host", smtp.getOrDefault("mail.smtp.host", "localhost"));
-            prop.put("mail.smtp.port", smtp.getOrDefault("mail.smtp.port", "25"));
-        }
+        Properties prop = System.getProperties();
+        prop.put(SMTP.MAIL_SMTP_HOST, smtp.getSmtpHost());
+        prop.put(SMTP.MAIL_SMTP_PORT, smtp.getSmtpPort());
 
         if (debug)
             prop.put("mail.debug", "true");
 
         Session session = null;
-        if (smtp != null && smtp.get("mail.smtp.auth") != null) {
-            prop.put("mail.smtp.auth", smtp.get("mail.smtp.auth"));
-            prop.put("mail.smtp.starttls.enable", smtp.getOrDefault("mail.smtp.starttls.enable", "false"));
+        if (smtp.isSmtpAuth()) {
+            prop.put(SMTP.MAIL_SMTP_AUTH, smtp.isSmtpAuth());
+            prop.put(SMTP.MAIL_SMTP_STARTTLS_ENABLE, smtp.isSmtpStartTlsEnable());
 
             //session = Session.getDefaultInstance(prop, auth);
             session = Session.getDefaultInstance(prop, new Authenticator() {
                  public PasswordAuthentication getPasswordAuthentication() {
-                     String username = smtp.getOrDefault("mail.smtp.username", "");
-                     String password = smtp.getOrDefault("mail.smtp.password", "");
+                     String username = smtp.getSmtpUsername();
+                     String password = smtp.getSmtpPassword();
                      return new PasswordAuthentication(username, password);
                   }
             });
@@ -139,29 +205,95 @@ public class EmailApp {
 
         MimeMessage msg = new MimeMessage(session);
 
-        msg.setFrom(new InternetAddress(from));
+        if (from.getName() != null) {
+            msg.setFrom(new InternetAddress(from.getAddress(), from.getName(), StandardCharsets.UTF_8.name()));
+        } else {
+            msg.setFrom(new InternetAddress(from.getAddress()));
+        }
 
-        msg.setFrom(new InternetAddress(from));
-        msg.addRecipients(Message.RecipientType.TO, recipients.stream()
-                .map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
-                .toArray(InternetAddress[]::new)
+        msg.addRecipients(Message.RecipientType.TO,
+                recipients.stream().map(r -> {
+                    try {
+                        if (r.getName() != null) {
+                            return new InternetAddress(r.getAddress(), r.getName(), StandardCharsets.UTF_8.name());
+                        } else {
+                            return new InternetAddress(r.getAddress());
+                        }
+
+                    } catch (AddressException | UnsupportedEncodingException e) { }
+                    return null;
+                }).toArray(InternetAddress[]::new)
         );
-        if (cc != null)
-            msg.addRecipients(Message.RecipientType.CC, cc.stream()
-                    .map(s -> { try { return new InternetAddress(s); } catch (AddressException e) { } return null; })
+
+        if (cc != null) {
+            msg.addRecipients(Message.RecipientType.CC,
+                    cc.stream().map(ccc -> {
+                        try {
+                            if (ccc.getName() != null) {
+                                return new InternetAddress(ccc.getAddress(), ccc.getName(), StandardCharsets.UTF_8.name());
+                            } else {
+                                return new InternetAddress(ccc.getAddress());
+                            }
+
+                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        return null;
+                    })
                     .toArray(InternetAddress[]::new)
             );
+        }
+
+        if (bcc != null) {
+            msg.addRecipients(Message.RecipientType.BCC,
+                    bcc.stream().map(bccc -> {
+                        try {
+                            if (bccc.getName() != null) {
+                                return new InternetAddress(bccc.getAddress(), bccc.getName(), StandardCharsets.UTF_8.name());
+                            } else {
+                                return new InternetAddress(bccc.getAddress());
+                            }
+
+                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        return null;
+                    })
+                    .toArray(InternetAddress[]::new)
+            );
+        }
 
         msg.setSubject(subject, "UTF-8");
 
-        MimeMultipart content = new MimeMultipart("alternative");
-        MimeBodyPart html = new MimeBodyPart();
+        if (attachments != null) {
+            MimeMultipart altAndAtt = new MimeMultipart(Email.Type.mixed.toString());
 
-        html.setContent(msgHtml, "text/html; charset=\"UTF-8\"");
-        html.setHeader("Content-Transfer-Encoding", "8bit");
-        content.addBodyPart(html);
+            MimeBodyPart html = new MimeBodyPart();
+            html.setContent(msgHtml.getContent(), msgHtml.getContentType());
+            altAndAtt.addBodyPart(html);
 
-        msg.setContent(content, "UTF-8");
+            for (EmailAttachment ea : attachments) {
+                MimeBodyPart messageBodyPart = new MimeBodyPart();
+                try {
+                    if (ea.getContentType().equals("text/plain")) {
+                        messageBodyPart.setText(ea.getContent());
+                        messageBodyPart.setFileName(ea.getName());
+                    } else {
+                        messageBodyPart.attachFile(ea.getFile());
+                        messageBodyPart.setFileName(ea.getName());
+                    }
+                } catch (IOException e) {
+
+                }
+                altAndAtt.addBodyPart(messageBodyPart);
+            }
+            msg.setContent(altAndAtt);
+        } else {
+            MimeMultipart content = new MimeMultipart("alternative");
+            MimeBodyPart html = new MimeBodyPart();
+
+            html.setContent(msgHtml.getContent(), msgHtml.getContentType());
+            html.setHeader("Content-Transfer-Encoding", "8bit");
+            content.addBodyPart(html);
+
+            msg.setContent(content, "UTF-8");
+        }
 
         // send
         try (Transport t = session.getTransport()) {
@@ -169,25 +301,6 @@ public class EmailApp {
             t.sendMessage(msg, msg.getAllRecipients());
         }
         return true;
-    }
-
-    public static boolean isValidEmail(String email) {
-        if (email == null) {
-            return false;
-        }
-        if (email.length() >= 320) {
-            return false;
-        }
-
-        boolean result = false;
-        try {
-            InternetAddress emailAddr = new InternetAddress(email);
-            emailAddr.validate();
-            result = true;
-        } catch (AddressException ex) {
-
-        }
-        return result;
     }
 
 }
