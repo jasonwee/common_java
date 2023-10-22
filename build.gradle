@@ -34,8 +34,7 @@ dependencies {
     //implementation 'javax.mail:javax.mail-api:1.6.2'
     // https://mvnrepository.com/artifact/javax.activation/activation
     //implementation 'javax.activation:activation:1.1'
-    // https://mvnrepository.com/artifact/com.sun.mail/javax.mail
-    implementation 'com.sun.mail:javax.mail:1.6.2'
+    implementation 'com.sun.mail:jakarta.mail:1.6.7'
 
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     implementation 'org.slf4j:slf4j-api:1.7.36'
@@ -136,3 +135,9 @@ uploadArchives {
   }
 }
 
+eclipse {
+  classpath {
+    downloadJavadoc = true
+    downloadSources = true
+  }
+}
