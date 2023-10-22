@@ -19,27 +19,39 @@ package ch.weetech.alert;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import javax.mail.MessagingException;
+import javax.mail.Authenticator;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.MimeMessage;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-/*
- * TODO
- * re-enable sendTextViaSMTP
- * re-enable sendTextViaLocalhost
- * test email with text attachment
- * test email with binary attachment
- *
- */
+
+@ExtendWith(MockitoExtension.class)
 public class EmailAppTest {
 
+    @Mock
+    Session sessionMock;
 
-    @Disabled("write when powermockito support junit5")
+    @Mock
+    Transport transportMock;
+
+    @Mock
+    Authenticator authenticatorMock;
+
     @Test
     public void sendTextViaSMTP() {
         SMTP smtp = new SMTP.Builder("mymail.smtp.com", 587)
@@ -55,17 +67,19 @@ public class EmailAppTest {
         EmailBody body = new EmailBody.Builder("Hello, this is a test.", "text/plain; charset=UTF-8").build();
         List<EmailAttachment> attachments = null;
 
-        try {
-            //when(EmailApp.sendText(from, recipients, cc, subject, body, attachments, smtp, true)).thenReturn(true);
+        try (MockedStatic<Session> session = mockStatic(Session.class);
+               MockedStatic<Transport> transport = mockStatic(Transport.class);
+                MockedConstruction<MimeMessage> mockMimeMessage = Mockito.mockConstruction(MimeMessage.class);
+                 ) {
+            session.when(() -> Session.getDefaultInstance(Mockito.any(), Mockito.any())).thenReturn(sessionMock);
+            when(sessionMock.getTransport()).thenReturn(transportMock);
 
             assertTrue(EmailApp.sendText(from, recipients, cc, bcc, subject, body, attachments, smtp, true));
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-            fail("must not fail");
+        } catch (Exception e) {
+            fail("must not fail test", e);
         }
     }
 
-    @Disabled("write when powermockito support junit5")
     @Test
     public void sendTextViaLocalhost() {
         SMTP smtp = new SMTP.Builder("localhost", 25).build();
@@ -77,15 +91,19 @@ public class EmailAppTest {
         EmailBody body = new EmailBody.Builder("Hello, this is a test.", "text/plain; charset=us-ascii").build();
         List<EmailAttachment> attachments = null;
 
-        try {
+        try (MockedStatic<Session> session = mockStatic(Session.class);
+                MockedStatic<Transport> transport = mockStatic(Transport.class);
+                 MockedConstruction<MimeMessage> mockMimeMessage = Mockito.mockConstruction(MimeMessage.class);
+                  ) {
+            session.when(() -> Session.getInstance(any(), isNull())).thenReturn(sessionMock);
+            when(sessionMock.getTransport()).thenReturn(transportMock);
+
             assertTrue(EmailApp.sendText(from, recipients, cc, bcc, subject, body, attachments, smtp, true));
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-            fail("must not fail");
+        } catch (Exception e) {
+            fail("must not fail test", e);
         }
     }
 
-    @Disabled("write when powermockito support junit5")
     @Test
     public void sendHTML() {
         EmailAddress from = new EmailAddress.Builder("noreply@foo.com").build();
@@ -96,12 +114,33 @@ public class EmailAppTest {
         EmailBody body = new EmailBody.Builder("<p>Hello, this is a test.</p>", "text/html; charset=\"UTF-8\"").build();
         SMTP smtp = new SMTP.Builder("mymail.smtp.com", 587).smtpAuth(true).smtpUsername("jason@foo.com").smtpPassword("").build();
 
-        try {
+
+        try (MockedStatic<Session> session = mockStatic(Session.class);
+                MockedStatic<Transport> transport = mockStatic(Transport.class);
+                 MockedConstruction<MimeMessage> mockMimeMessage = Mockito.mockConstruction(MimeMessage.class);
+                  ) {
+             session.when(() -> Session.getDefaultInstance(Mockito.any(), Mockito.any())).thenReturn(sessionMock);
+             when(sessionMock.getTransport()).thenReturn(transportMock);
+
             assertTrue(EmailApp.sendHtml(from, recipients, cc, bcc, subject, body, null, smtp, true));
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-            fail("must not fail");
-        }
+         } catch (Exception e) {
+             fail("must not fail test", e);
+         }
+    }
+
+    public void sendTextEmailWithAttachment() {
+
+    }
+
+    public void sendHTMLEmailWithAttachment() {
+
+    }
+
+    public void sendTextEmailWithImgAttachment() {
+
+    }
+
+    public void sendHTMLEmailWithImgAttachment() {
 
     }
 
