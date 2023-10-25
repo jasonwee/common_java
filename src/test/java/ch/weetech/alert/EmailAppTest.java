@@ -187,7 +187,7 @@ public class EmailAppTest {
         Path file = tempDir.resolve("temp_file.gif");
         // https://shoonia.github.io/pixel-gif/#1f85e3
         // xxd 1x1_#1F85E3.gif
-        Files.write(file, Hex.parseHexBinary("474946383961010001008000001f85e300000021f90400000000002c00000000010001000002024401003b"));
+        Files.write(file, Hex.toByteArray("474946383961010001008000001f85e300000021f90400000000002c00000000010001000002024401003b"));
 
         SMTP smtp = new SMTP.Builder("localhost", 25).build();
         EmailAddress from = new EmailAddress.Builder("noreply@foo.com").name("No Reply").build();
@@ -215,7 +215,7 @@ public class EmailAppTest {
     public void sendHTMLEmailWithImgAttachment(@TempDir Path tempDir) throws IOException {
         Path file = tempDir.resolve("temp_file.gif");
         Files.writeString(file, "content inside temp file");
-        Files.write(file, Hex.parseHexBinary("474946383961010001008000001f85e300000021f90400000000002c00000000010001000002024401003b"));
+        Files.write(file, Hex.toByteArray("474946383961010001008000001f85e300000021f90400000000002c00000000010001000002024401003b"));
 
         EmailAddress from = new EmailAddress.Builder("noreply@foo.com").build();
         List<EmailAddress> recipients = List.of(new EmailAddress.Builder("jason@bar.com").build());
