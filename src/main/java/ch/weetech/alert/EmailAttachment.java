@@ -79,8 +79,8 @@ public class EmailAttachment extends Email{
             return this;
         }
 
-        public Builder contentType(String name) {
-            this.name = name;
+        public Builder contentType(String contentType) {
+            this.contentType = contentType;
             return this;
         }
 

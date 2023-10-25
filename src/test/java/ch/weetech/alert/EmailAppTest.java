@@ -24,6 +24,9 @@ import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import javax.mail.Authenticator;
@@ -33,11 +36,14 @@ import javax.mail.internet.MimeMessage;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ch.weetech.string.Hex;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -128,20 +134,134 @@ public class EmailAppTest {
          }
     }
 
+    @Test
     public void sendTextEmailWithAttachment() {
+        SMTP smtp = new SMTP.Builder("localhost", 25).build();
+        EmailAddress from = new EmailAddress.Builder("noreply@foo.com").name("No Reply").build();
+        List<EmailAddress> recipients = List.of(new EmailAddress.Builder("jason@bar.com").build());
+        List<EmailAddress> cc = null;
+        List<EmailAddress> bcc = null;
+        String subject = "email subject";
+        EmailBody body = new EmailBody.Builder("Hello, this is a test.", "text/plain; charset=us-ascii").build();
+        List<EmailAttachment> attachments = List.of(new EmailAttachment.Builder("this is attachment").name("attachment_filename.txt").contentType("text/plain").build());
 
+        try (MockedStatic<Session> session = mockStatic(Session.class);
+                MockedStatic<Transport> transport = mockStatic(Transport.class);
+                 MockedConstruction<MimeMessage> mockMimeMessage = Mockito.mockConstruction(MimeMessage.class);
+                  ) {
+            session.when(() -> Session.getInstance(any(), isNull())).thenReturn(sessionMock);
+            when(sessionMock.getTransport()).thenReturn(transportMock);
+
+            assertTrue(EmailApp.sendText(from, recipients, cc, bcc, subject, body, attachments, smtp, true));
+        } catch (Exception e) {
+            fail("must not fail test", e);
+        }
     }
 
+    @Test
     public void sendHTMLEmailWithAttachment() {
+        EmailAddress from = new EmailAddress.Builder("noreply@foo.com").build();
+        List<EmailAddress> recipients = List.of(new EmailAddress.Builder("jason@bar.com").build());
+        List<EmailAddress> cc = null;
+        List<EmailAddress> bcc = null;
+        String subject = "email  好";
+        EmailBody body = new EmailBody.Builder("<p>Hello, this is a test.</p>", "text/html; charset=\"UTF-8\"").build();
+        SMTP smtp = new SMTP.Builder("mymail.smtp.com", 587).smtpAuth(true).smtpUsername("jason@foo.com").smtpPassword("").build();
+        List<EmailAttachment> attachments = List.of(new EmailAttachment.Builder("this is attachment").name("attachment_filename.txt").contentType("text/plain").build());
 
+        try (MockedStatic<Session> session = mockStatic(Session.class);
+                MockedStatic<Transport> transport = mockStatic(Transport.class);
+                 MockedConstruction<MimeMessage> mockMimeMessage = Mockito.mockConstruction(MimeMessage.class);
+                  ) {
+             session.when(() -> Session.getDefaultInstance(Mockito.any(), Mockito.any())).thenReturn(sessionMock);
+             when(sessionMock.getTransport()).thenReturn(transportMock);
+
+            assertTrue(EmailApp.sendHtml(from, recipients, cc, bcc, subject, body, attachments, smtp, true));
+         } catch (Exception e) {
+             fail("must not fail test", e);
+         }
     }
 
-    public void sendTextEmailWithImgAttachment() {
+    @Test
+    public void sendTextEmailWithImgAttachment(@TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("temp_file.gif");
+        // https://shoonia.github.io/pixel-gif/#1f85e3
+        // xxd 1x1_#1F85E3.gif
+        Files.write(file, Hex.parseHexBinary("474946383961010001008000001f85e300000021f90400000000002c00000000010001000002024401003b"));
 
+        SMTP smtp = new SMTP.Builder("localhost", 25).build();
+        EmailAddress from = new EmailAddress.Builder("noreply@foo.com").name("No Reply").build();
+        List<EmailAddress> recipients = List.of(new EmailAddress.Builder("jason@bar.com").build());
+        List<EmailAddress> cc = null;
+        List<EmailAddress> bcc = null;
+        String subject = "email subject";
+        EmailBody body = new EmailBody.Builder("Hello, this is a test.", "text/plain; charset=us-ascii").build();
+        List<EmailAttachment> attachments = List.of(new EmailAttachment.Builder(file.toFile()).name("temp_file.gif").build());
+
+        try (MockedStatic<Session> session = mockStatic(Session.class);
+                MockedStatic<Transport> transport = mockStatic(Transport.class);
+                 MockedConstruction<MimeMessage> mockMimeMessage = Mockito.mockConstruction(MimeMessage.class);
+                  ) {
+            session.when(() -> Session.getInstance(any(), isNull())).thenReturn(sessionMock);
+            when(sessionMock.getTransport()).thenReturn(transportMock);
+
+            assertTrue(EmailApp.sendText(from, recipients, cc, bcc, subject, body, attachments, smtp, true));
+        } catch (Exception e) {
+            fail("must not fail test", e);
+        }
     }
 
-    public void sendHTMLEmailWithImgAttachment() {
+    @Test
+    public void sendHTMLEmailWithImgAttachment(@TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("temp_file.gif");
+        Files.writeString(file, "content inside temp file");
+        Files.write(file, Hex.parseHexBinary("474946383961010001008000001f85e300000021f90400000000002c00000000010001000002024401003b"));
 
+        EmailAddress from = new EmailAddress.Builder("noreply@foo.com").build();
+        List<EmailAddress> recipients = List.of(new EmailAddress.Builder("jason@bar.com").build());
+        List<EmailAddress> cc = null;
+        List<EmailAddress> bcc = null;
+        String subject = "email  好";
+        EmailBody body = new EmailBody.Builder("<p>Hello, this is a test.</p>", "text/html; charset=\"UTF-8\"").build();
+        SMTP smtp = new SMTP.Builder("mymail.smtp.com", 587).smtpAuth(true).smtpUsername("jason@foo.com").smtpPassword("").build();
+        List<EmailAttachment> attachments = List.of(new EmailAttachment.Builder(file.toFile()).name("temp_file.gif").build());
+
+        try (MockedStatic<Session> session = mockStatic(Session.class);
+                MockedStatic<Transport> transport = mockStatic(Transport.class);
+                 MockedConstruction<MimeMessage> mockMimeMessage = Mockito.mockConstruction(MimeMessage.class);
+                  ) {
+             session.when(() -> Session.getDefaultInstance(Mockito.any(), Mockito.any())).thenReturn(sessionMock);
+             when(sessionMock.getTransport()).thenReturn(transportMock);
+
+            assertTrue(EmailApp.sendHtml(from, recipients, cc, bcc, subject, body, attachments, smtp, true));
+         } catch (Exception e) {
+             fail("must not fail test", e);
+         }
+    }
+
+    @Test
+    public void sendTextAndHtml() {
+        EmailAddress from = new EmailAddress.Builder("noreply@foo.com").build();
+        List<EmailAddress> recipients = List.of(new EmailAddress.Builder("jason@bar.com").build());
+        List<EmailAddress> cc = null;
+        List<EmailAddress> bcc = null;
+        String subject = "email  好";
+        EmailBody msgHtml = new EmailBody.Builder("<p>Hello, this is a test.</p>", "text/html; charset=\"UTF-8\"").build();
+        EmailBody msgText = new EmailBody.Builder("Hello, this is a test", "text/plain; charset=\"UTF-8\"").build();
+        SMTP smtp = new SMTP.Builder("mymail.smtp.com", 587).smtpAuth(true).smtpUsername("jason@foo.com").smtpPassword("").build();
+
+
+        try (MockedStatic<Session> session = mockStatic(Session.class);
+                MockedStatic<Transport> transport = mockStatic(Transport.class);
+                 MockedConstruction<MimeMessage> mockMimeMessage = Mockito.mockConstruction(MimeMessage.class);
+                  ) {
+             session.when(() -> Session.getDefaultInstance(Mockito.any(), Mockito.any())).thenReturn(sessionMock);
+             when(sessionMock.getTransport()).thenReturn(transportMock);
+
+            assertTrue(EmailApp.sendTextAndHtml(from, recipients, cc, bcc, subject, msgText, msgHtml, null, smtp, true));
+         } catch (Exception e) {
+             fail("must not fail test", e);
+         }
     }
 
 }

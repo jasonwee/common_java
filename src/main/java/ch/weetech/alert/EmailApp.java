@@ -146,7 +146,7 @@ public class EmailApp {
             for (EmailAttachment ea : attachments) {
                 MimeBodyPart messageBodyPart = new MimeBodyPart();
                 try {
-                    if (ea.getContentType().equals("text/plain")) {
+                    if ("text/plain".equals(ea.getContentType())) {
                         messageBodyPart.setText(ea.getContent());
                         messageBodyPart.setFileName(ea.getName());
                     } else {
@@ -271,7 +271,148 @@ public class EmailApp {
             for (EmailAttachment ea : attachments) {
                 MimeBodyPart messageBodyPart = new MimeBodyPart();
                 try {
-                    if (ea.getContentType().equals("text/plain")) {
+                    if ("text/plain".equals(ea.getContentType())) {
+                        messageBodyPart.setText(ea.getContent());
+                        messageBodyPart.setFileName(ea.getName());
+                    } else {
+                        messageBodyPart.attachFile(ea.getFile());
+                        messageBodyPart.setFileName(ea.getName());
+                    }
+                } catch (IOException e) {
+
+                }
+                altAndAtt.addBodyPart(messageBodyPart);
+            }
+            msg.setContent(altAndAtt);
+        } else {
+            MimeMultipart content = new MimeMultipart("alternative");
+            MimeBodyPart html = new MimeBodyPart();
+
+            html.setContent(msgHtml.getContent(), msgHtml.getContentType());
+            html.setHeader("Content-Transfer-Encoding", "8bit");
+            content.addBodyPart(html);
+
+            msg.setContent(content, "UTF-8");
+        }
+
+        // send
+        try (Transport t = session.getTransport()) {
+            t.connect();
+            t.sendMessage(msg, msg.getAllRecipients());
+        }
+        return true;
+    }
+
+    // aka alternative
+    public static boolean sendTextAndHtml(EmailAddress from, List<EmailAddress> recipients, List<EmailAddress> cc, List<EmailAddress> bcc, String subject, EmailBody msgText, EmailBody msgHtml,
+            List<EmailAttachment> attachments, SMTP smtp, boolean debug) throws AddressException, MessagingException, UnsupportedEncodingException {
+        assert smtp != null;
+        assert recipients != null;
+        assert recipients.size() > 0;
+
+        Properties prop = System.getProperties();
+        prop.put(SMTP.MAIL_SMTP_HOST, smtp.getSmtpHost());
+        prop.put(SMTP.MAIL_SMTP_PORT, smtp.getSmtpPort());
+
+        if (debug)
+            prop.put("mail.debug", "true");
+
+        Session session = null;
+        if (smtp.isSmtpAuth()) {
+            prop.put(SMTP.MAIL_SMTP_AUTH, smtp.isSmtpAuth());
+            prop.put(SMTP.MAIL_SMTP_STARTTLS_ENABLE, smtp.isSmtpStartTlsEnable());
+
+            //session = Session.getDefaultInstance(prop, auth);
+            session = Session.getDefaultInstance(prop, new Authenticator() {
+                 public PasswordAuthentication getPasswordAuthentication() {
+                     String username = smtp.getSmtpUsername();
+                     String password = smtp.getSmtpPassword();
+                     return new PasswordAuthentication(username, password);
+                  }
+            });
+        } else {
+            session = Session.getInstance(prop, null);
+        }
+
+        MimeMessage msg = new MimeMessage(session);
+
+        if (from.getName() != null) {
+            msg.setFrom(new InternetAddress(from.getAddress(), from.getName(), StandardCharsets.UTF_8.name()));
+        } else {
+            msg.setFrom(new InternetAddress(from.getAddress()));
+        }
+
+        msg.addRecipients(Message.RecipientType.TO,
+                recipients.stream().map(r -> {
+                    try {
+                        if (r.getName() != null) {
+                            return new InternetAddress(r.getAddress(), r.getName(), StandardCharsets.UTF_8.name());
+                        } else {
+                            return new InternetAddress(r.getAddress());
+                        }
+
+                    } catch (AddressException | UnsupportedEncodingException e) { }
+                    return null;
+                }).toArray(InternetAddress[]::new)
+        );
+
+        if (cc != null) {
+            msg.addRecipients(Message.RecipientType.CC,
+                    cc.stream().map(ccc -> {
+                        try {
+                            if (ccc.getName() != null) {
+                                return new InternetAddress(ccc.getAddress(), ccc.getName(), StandardCharsets.UTF_8.name());
+                            } else {
+                                return new InternetAddress(ccc.getAddress());
+                            }
+
+                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        return null;
+                    })
+                    .toArray(InternetAddress[]::new)
+            );
+        }
+
+        if (bcc != null) {
+            msg.addRecipients(Message.RecipientType.BCC,
+                    bcc.stream().map(bccc -> {
+                        try {
+                            if (bccc.getName() != null) {
+                                return new InternetAddress(bccc.getAddress(), bccc.getName(), StandardCharsets.UTF_8.name());
+                            } else {
+                                return new InternetAddress(bccc.getAddress());
+                            }
+
+                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        return null;
+                    })
+                    .toArray(InternetAddress[]::new)
+            );
+        }
+
+        msg.setSubject(subject, "UTF-8");
+
+        if (attachments != null) {
+            MimeMultipart altAndAtt = new MimeMultipart(Email.Type.mixed.toString());
+
+            MimeMultipart plainAndHtml = new MimeMultipart( "alternative" );
+
+            MimeBodyPart plain = new MimeBodyPart();
+            plain.setContent(msgText, "text/plain; charset=utf-8" );
+            plainAndHtml.addBodyPart(plain);
+
+            MimeBodyPart html = new MimeBodyPart();
+            html.setContent(msgHtml, "text/html; charset=utf-8" );
+            plainAndHtml.addBodyPart(html);
+
+            MimeBodyPart wrapper = new MimeBodyPart();
+            wrapper.setContent(plainAndHtml);
+            altAndAtt.addBodyPart(wrapper);
+
+            for (EmailAttachment ea : attachments) {
+                MimeBodyPart messageBodyPart = new MimeBodyPart();
+                try {
+                    if ("text/plain".equals(ea.getContentType())) {
                         messageBodyPart.setText(ea.getContent());
                         messageBodyPart.setFileName(ea.getName());
                     } else {
