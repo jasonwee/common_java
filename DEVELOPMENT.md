@@ -73,14 +73,16 @@ $ ./gradlew clean build
 
 # Deployment
 1. build and release
-   git checkout master
-   update VERSION IN build.gradle
-   git commit -m "version bump"
-   ./gradlew clean build uploadArchives
-2. login to https://s01.oss.sonatype.org/#stagingRepositories
-   click close
-   if all verifications run ok,  then click release
-3. check release
+   ```
+   $ git checkout master
+   $ # update VERSION IN build.gradle
+   $ git commit -m "version bump"
+   $ ./gradlew clean build uploadArchives
+   ```
+3. login to https://s01.oss.sonatype.org/#stagingRepositories
+   * click close
+   * if all verifications run ok,  then click release
+4. check release
    * https://mvnrepository.com/search?q=ch.weetech
    * https://search.maven.org/search?q=ch.weetech
    * https://s01.oss.sonatype.org/content/repositories/releases/ch/weetech/
