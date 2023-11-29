@@ -47,4 +47,15 @@ public class IPTest {
         assertFalse(IP.isIpInSubnet("2::1", "1::", 64));
     }
 
+    @Test
+    public void testisIPv4() {
+        assertTrue(IP.isIPv4("127.0.0.1"));
+    }
+
+    @Test
+    public void testisIPv6() {
+        assertTrue(IP.isIPv6("::1"));
+        assertTrue(IP.isIPv6("fe80:0:0:0:0:0:c0a8:11"));
+    }
+
 }

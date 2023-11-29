@@ -17,6 +17,11 @@
  */
 package ch.weetech.network;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class IP {
 
     /**
@@ -78,6 +83,24 @@ public class IP {
             return true;
         } catch (final Throwable t) {
             return false;
+        }
+    }
+
+    public static boolean isIPv4(String input) {
+        try {
+          InetAddress inetAddress = InetAddress.getByName(input);
+          return (inetAddress instanceof Inet4Address) && inetAddress.getHostAddress().equals(input);
+        } catch (UnknownHostException ex) {
+          return false;
+        }
+    }
+
+    public static boolean isIPv6(String input) {
+        try {
+          InetAddress inetAddress = InetAddress.getByName(input);
+          return (inetAddress instanceof Inet6Address);
+        } catch (UnknownHostException ex) {
+          return false;
         }
     }
 
