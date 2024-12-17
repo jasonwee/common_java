@@ -1,4 +1,5 @@
-
+# what is common_java?
+A common utilities that can be used for a variety Java project.
 
 # where to get this lib?
 [maven](https://mvnrepository.com/artifact/ch.weetech/common-java)
