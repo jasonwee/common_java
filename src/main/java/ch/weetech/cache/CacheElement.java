@@ -17,27 +17,66 @@
  */
 package ch.weetech.cache;
 
+/**
+ * Represents a basic key-value pair container used as an element within a cache.
+ *
+ * @param <K> the type of the key
+ * @param <V> the type of the value
+ */
 public class CacheElement<K, V> {
+	/**
+     * The key associated with this cache element.
+     */
     private K key;
+    
+    /**
+     * The value associated with this cache element.
+     */
     private V value;
 
+    /**
+     * Constructs a new {@code CacheElement} with the specified key and value.
+     *
+     * @param key   the key to associate with this element
+     * @param value the value to associate with this element
+     */
     public CacheElement(K key, V value) {
         this.value = value;
         this.key = key;
     }
 
+    /**
+     * Returns the key of this cache element.
+     *
+     * @return the key
+     */
     public K getKey() {
         return key;
     }
 
+    /**
+     * Sets or updates the key of this cache element.
+     *
+     * @param key the new key to assign
+     */
     public void setKey(K key) {
         this.key = key;
     }
 
+    /**
+     * Returns the value of this cache element.
+     *
+     * @return the value
+     */
     public V getValue() {
         return value;
     }
 
+    /**
+     * Sets or updates the value of this cache element.
+     *
+     * @param value the new value to assign
+     */
     public void setValue(V value) {
         this.value = value;
     }

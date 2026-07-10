@@ -30,10 +30,35 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Utility class for converting JDBC {@link ResultSet} objects into lists of maps.
+ * 
+ * <p>Provides convenient methods to transform database query results into
+ * in-memory data structures that are easy to work with in Java applications.</p>
+ *
+ */
+@SuppressWarnings("doclint:missing")
 public class RStoListMap {
 
     private static final Logger logger = LoggerFactory.getLogger(RStoListMap.class);
 
+    /**
+     * Converts a {@link ResultSet} into a list of maps, where each map represents
+     * one row with column labels as keys and corresponding values as objects.
+     * 
+     * <p>Features:</p>
+     * <ul>
+     *   <li>Preserves column order using {@link LinkedHashMap}</li>
+     *   <li>Handles SQL warnings and logs them</li>
+     *   <li>Special handling for empty result sets and GENERATED_KEY cases</li>
+     *   <li>Moves the cursor to support proper iteration</li>
+     * </ul>
+     * 
+     * @param resultSet the ResultSet to convert
+     * @return a list of maps representing the rows, or {@code null} for certain empty cases
+     * @throws SQLException if a database access error occurs
+     * @throws NullPointerException if resultSet is null
+     */
     public static List<Map<String, Object>> getMapList(ResultSet resultSet) throws SQLException, NullPointerException {
 
         if (resultSet == null)
@@ -113,6 +138,17 @@ public class RStoListMap {
 
     }
 
+    /**
+     * Converts a {@link ResultSet} into a list of maps, where each map represents
+     * one row with column names as keys and string representations of values.
+     * 
+     * <p>This is a simpler alternative to {@link #getMapList(ResultSet)} that always
+     * converts values to strings using {@code getString()}.</p>
+     * 
+     * @param results the ResultSet to convert
+     * @return a list of string-based row maps
+     * @throws SQLException if a database access error occurs
+     */
 	public static List<Map<String, String>> toMapList(ResultSet results) throws SQLException {
 
         int numCols = results.getMetaData().getColumnCount();

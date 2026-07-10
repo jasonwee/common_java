@@ -35,9 +35,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-// https://developers.google.com/apps-script/reference/url-fetch
+/**
+ * Utility class for making HTTP requests using Java's {@link HttpClient}.
+ * 
+ * https://developers.google.com/apps-script/reference/url-fetch
+ * 
+ * <p>Provides convenient static methods for GET and POST requests with support for
+ * query parameters, headers, redirects, timeouts, and asynchronous operations.</p>
+ *
+ */
+@SuppressWarnings("doclint:missing")
 public class UrlFetchApp {
 
+	/**
+     * Sends a GET request using the provided {@link HttpClient} and headers.
+     * 
+     * @param url      the target URL
+     * @param client   the HttpClient to use for the request
+     * @param headers  optional headers to include in the request
+     * @return the {@link HttpResponse} containing status code and body
+     * @throws Exception if the request fails or parameters are invalid
+     * @throws IllegalArgumentException if client is null or URL is empty
+     */
 	public static HttpResponse<String> get(String url, HttpClient client, Map<String, String> headers) throws Exception {
 
 		if (client == null) {
@@ -67,6 +86,17 @@ public class UrlFetchApp {
         return response;
 	}
 	
+	/**
+     * Sends a GET request with optional query parameters and default client settings.
+     * 
+     * <p>Automatically appends query parameters if provided and configures the client
+     * with redirect following and a 2-second connect timeout.</p>
+     * 
+     * @param url  the base URL
+     * @param data optional query parameters to append to the URL
+     * @return the response body as a String
+     * @throws Exception if the request fails
+     */
 	public static String getResponse(String url, Map<String, String> data) throws Exception {
 		// convert data
 		
@@ -87,12 +117,28 @@ public class UrlFetchApp {
 		
 		return response.body();
 	}
-	
-	// we only care about the response.
+
+	/**
+     * Sends a simple GET request with default settings.
+     * 
+     * we only care about the response.
+     * 
+     * @param url the target URL
+     * @return the response body as a String
+     * @throws Exception if the request fails
+     */
 	public static String getResponse(String url) throws Exception {
 		return getResponse(url, null);
 	}
 	
+	/**
+     * Sends multiple GET requests concurrently using the provided executor.
+     * 
+     * @param urls             list of URLs to fetch
+     * @param executorService  executor service for concurrent execution
+     * @return array of {@link HttpResponse} objects
+     * @throws Exception if any request fails
+     */
 	public static HttpResponse<?>[] getAll(List<String> urls, ExecutorService executorService) throws Exception {
 		final HttpClient httpClient = HttpClient.newBuilder()
 				.executor(executorService)
@@ -120,6 +166,14 @@ public class UrlFetchApp {
 		return results.stream().toArray(HttpResponse[]::new);
 	}
 	
+	/**
+     * Sends an asynchronous GET request with a specified timeout.
+     * 
+     * @param url     the target URL
+     * @param timeout timeout in seconds
+     * @return the response body as a String
+     * @throws Exception if the request fails or times out
+     */
 	public static String asyncGet(String url, int timeout) throws Exception {
 		
 		final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
@@ -135,6 +189,15 @@ public class UrlFetchApp {
 		return response.thenApply(HttpResponse::body).get(timeout, TimeUnit.SECONDS);
 	}
 
+	/**
+     * Sends a POST request with form data.
+     * 
+     * @param url         the target URL
+     * @param data        the form data to send
+     * @param contentType the Content-Type header value (e.g. "application/x-www-form-urlencoded")
+     * @return the {@link HttpResponse} containing status code and body
+     * @throws Exception if the request fails
+     */
 	public static HttpResponse<String> post(String url, Map<Object, Object> data, String contentType) throws Exception {
 		final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
 
@@ -149,7 +212,12 @@ public class UrlFetchApp {
 		return response;
 	}
 
-
+	/**
+     * Converts a map into a form-urlencoded body publisher.
+     * 
+     * @param data the data to encode
+     * @return a {@link BodyPublisher} containing the encoded form data
+     */
     private static HttpRequest.BodyPublisher ofFormData(Map<Object, Object> data) {
         var builder = new StringBuilder();
         for (Map.Entry<Object, Object> entry : data.entrySet()) {
@@ -164,6 +232,13 @@ public class UrlFetchApp {
         return HttpRequest.BodyPublishers.ofString(builder.toString());
     }
 
+    /**
+     * Builds a query string from a map of parameters.
+     * 
+     * @param params the parameters to encode
+     * @return a properly encoded query string (without leading '?')
+     * @throws UnsupportedEncodingException if encoding fails
+     */
 	private static String getParamsString(Map<String, String> params) throws UnsupportedEncodingException {
 		StringBuilder result = new StringBuilder();
 

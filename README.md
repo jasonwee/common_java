@@ -7,7 +7,7 @@ A common utilities that can be used for a variety Java project.
 
 # quick build
 ```
-$ export JAVA_HOME=/usr/lib/jvm/jdk-11.0.5/
+$ export JAVA_HOME=/usr/lib/jvm/jdk-21.0.11/
 $ ./gradlew clean build
 ```
 

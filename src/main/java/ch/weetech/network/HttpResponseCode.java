@@ -17,13 +17,39 @@
  */
 package ch.weetech.network;
 
+/**
+ * A constants registry containing custom network and client execution error status codes.
+ * <p>
+ * This class establishes error flags for standard transport exceptions, using numeric codes 
+ * distinct from the official IANA/IETF HTTP protocol specifications.
+ * </p>
+ * 
+ * https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+ */
+@SuppressWarnings("doclint:missing")
 public class HttpResponseCode {
 
     // https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
     // custom error code
+
+	/**
+     * Custom client-side error status indicating a general Input/Output (I/O) transport layer failure.
+     */
     public static int CLIENT_IO_ERROR = 480;
+    /**
+     * Custom client-side error status indicating that a local processing task or network 
+     * thread pool operation was prematurely interrupted.
+     */
     public static int CLIENT_INTERRUPTED_EXCEPTION = 481;
+    /**
+     * Custom client-side error status indicating that an outbound connection handshake attempt 
+     * timed out before achieving network link clearance.
+     */
     public static int CLIENT_CONNECT_TIMEOUT = 482;
+    /**
+     * Custom client-side error status indicating that the remote endpoint accepted the connection 
+     * but failed to yield stream payload data within the requested read window.
+     */
     public static int CLIENT_READ_TIMEOUT = 483;
 
 }

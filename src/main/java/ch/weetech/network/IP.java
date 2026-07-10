@@ -22,6 +22,14 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * Utility class for validating Internet Protocol (IP) address formats.
+ * <p>
+ * This class leverages core Java network routing APIs to differentiate between IPv4 and IPv6 structures 
+ * while filtering out hostname aliases or unintended DNS-resolved strings.
+ * </p>
+ */
+@SuppressWarnings("doclint:missing")
 public class IP {
 
     /**
@@ -85,7 +93,18 @@ public class IP {
             return false;
         }
     }
-
+    
+    /**
+     * Determines whether the provided input string is a strictly formatted IPv4 address.
+     * <p>
+     * This validation confirms that the input is a valid IP payload and forces an exact structural 
+     * match with the canonical dot-decimal format (e.g., "192.168.1.1"). This prevents false-positive 
+     * evaluations on alphanumeric hostnames that resolve to IPv4 backends.
+     * </p>
+     *
+     * @param input the text string to validate
+     * @return {@code true} if the string is a valid, raw dot-decimal IPv4 representation; {@code false} otherwise
+     */
     public static boolean isIPv4(String input) {
         try {
           InetAddress inetAddress = InetAddress.getByName(input);
@@ -95,6 +114,17 @@ public class IP {
         }
     }
 
+    /**
+     * Determines whether the provided input string resolves to or represents an IPv6 address.
+     * <p>
+     * Note: Because this method lacks the exact string equivalence check found in {@link #isIPv4(String)}, 
+     * passing an alphanumeric hostname (e.g., "localhost" or a domain name) that resolves to an 
+     * IPv6 record over DNS will cause this method to return {@code true}.
+     * </p>
+     *
+     * @param input the text string or hostname to evaluate
+     * @return {@code true} if the input evaluates or resolves to an IPv6 network profile; {@code false} otherwise
+     */
     public static boolean isIPv6(String input) {
         try {
           InetAddress inetAddress = InetAddress.getByName(input);

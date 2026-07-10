@@ -29,14 +29,34 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A wrapper class around Java's {@link java.net.http.HttpClient} that simplifies
+ * making HTTP GET and POST requests with built-in retry logic and consistent error handling.
+ * 
+ * <p>This class provides convenient methods for sending HTTP requests and returns
+ * a standardized {@link HttpResponse} object containing the status code, response body,
+ * and error details if applicable.</p>
+ * 
+ */
 public class HttpClientApp {
 
     private HttpClient httpClient = null;
 
+    /**
+     * Constructs an HttpClientApp with a pre-configured {@link HttpClient}.
+     * 
+     * @param httpClient the HttpClient instance to use
+     */
     public HttpClientApp(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
+    /**
+     * Constructs an HttpClientApp with a new HttpClient configured with the specified
+     * connect timeout and HTTP/2 version preference.
+     * 
+     * @param connectTimeout the connect timeout in seconds
+     */
     public HttpClientApp(int connectTimeout) {
         httpClient = HttpClient
                 .newBuilder()
@@ -45,6 +65,15 @@ public class HttpClientApp {
                 .build();
     }
 
+    /**
+     * Sends a GET request to the specified URL with retry capability.
+     * 
+     * @param url           the target URL
+     * @param userAgent     the User-Agent header value
+     * @param readTimeout   the read timeout in seconds
+     * @param retriesCount  number of retry attempts if the request fails due to timeout or I/O errors
+     * @return an {@link HttpResponse} containing the result of the request
+     */
     public HttpResponse get(String url, String userAgent, int readTimeout, int retriesCount) {
         HttpRequest request = HttpRequest.newBuilder().GET()
                 .uri(URI.create(url))
@@ -88,10 +117,29 @@ public class HttpClientApp {
         return httpResponse;
     }
 
+    /**
+     * Sends a simple GET request using default settings.
+     * 
+     * <p>Uses default values: User-Agent = "HttpClientApp", read timeout = 5 seconds, no retries.</p>
+     * 
+     * @param url the target URL
+     * @return an {@link HttpResponse} containing the result of the request
+     */
     public HttpResponse get(String url) {
         return get(url, "HttpClientApp", 5, 0);
     }
 
+    /**
+     * Sends a POST request with form data and custom headers with retry capability.
+     * 
+     * @param url           the target URL
+     * @param data          the form data to send (key-value pairs). Can be null.
+     * @param headers       additional HTTP headers to include in the request
+     * @param userAgent     the User-Agent header value
+     * @param readTimeout   the read timeout in seconds
+     * @param retriesCount  number of retry attempts on failure
+     * @return an {@link HttpResponse} containing the result of the request
+     */
     public HttpResponse post(String url, Map<Object, Object> data, Map<String, String> headers, String userAgent, int readTimeout, int retriesCount) {
 
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
@@ -147,10 +195,20 @@ public class HttpClientApp {
         return httpResponse;
     }
 
-        public HttpResponse post(String url, Map<Object, Object> data) {
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Content-Type", "application/x-www-form-urlencoded");
-            return post(url, data, headers, "HttpClientApp", 5, 0);
-        }
+    /**
+     * Sends a simple POST request with form data using default settings.
+     * 
+     * <p>Uses default values: Content-Type = application/x-www-form-urlencoded,
+     * User-Agent = "HttpClientApp", read timeout = 5 seconds, no retries.</p>
+     * 
+     * @param url  the target URL
+     * @param data the form data to send
+     * @return an {@link HttpResponse} containing the result of the request
+     */
+    public HttpResponse post(String url, Map<Object, Object> data) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
+        return post(url, data, headers, "HttpClientApp", 5, 0);
+    }
 
 }

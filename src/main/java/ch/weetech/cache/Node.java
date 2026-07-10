@@ -17,6 +17,18 @@
  */
 package ch.weetech.cache;
 
+/**
+ * A concrete implementation of a node in a doubly linked list.
+ * 
+ * <p>This class represents a standard non-empty node containing an element and
+ * references to its previous and next nodes. It is used internally by
+ * {@link DoublyLinkedList} to maintain the list structure.</p>
+ * 
+ * @param <T> the type of element stored in this node
+ * @see DoublyLinkedList
+ * @see LinkedListNode
+ * @see DummyNode
+ */
 public class Node<T> implements LinkedListNode<T> {
 
     private T value;
@@ -24,6 +36,16 @@ public class Node<T> implements LinkedListNode<T> {
     private LinkedListNode<T> next;
     private LinkedListNode<T> prev;
 
+    /**
+     * Creates a new node and inserts it into the doubly linked list.
+     * 
+     * <p>The node is inserted before the given {@code next} node, properly
+     * updating the links of the surrounding nodes.</p>
+     * 
+     * @param value the element to store in this node
+     * @param next  the node that will become the next node after this one
+     * @param list  reference to the parent {@link DoublyLinkedList}
+     */
     public Node(T value, LinkedListNode<T> next, DoublyLinkedList<T> list) {
         this.value = value;
         this.next = next;
@@ -33,54 +55,95 @@ public class Node<T> implements LinkedListNode<T> {
         this.list = list;
     }
 
+    /**
+    * {@inheritDoc}
+    * 
+    * @return always {@code true} for {@link Node}
+    */
     @Override
     public boolean hasElement() {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @return always {@code false} for {@link Node}
+     */
     @Override
     public boolean isEmpty() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @return the value stored in this node
+     * @throws NullPointerException if the value is null (though usually avoided)
+     */
     @Override
     public T getElement() throws NullPointerException {
         return value;
     }
 
+    /**
+     * Removes this node from the linked list by updating its previous and next nodes.
+     */
     @Override
     public void detach() {
         this.prev.setNext(this.getNext());
         this.next.setPrev(this.getPrev());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public DoublyLinkedList<T> getListReference() {
         return this.list;
     }
 
+    /**
+     * Sets the previous node and returns this node for method chaining.
+     */    
     @Override
     public LinkedListNode<T> setPrev(LinkedListNode<T> prev) {
         this.prev = prev;
         return this;
     }
 
+    /**
+     * Sets the next node and returns this node for method chaining.
+     */
     @Override
     public LinkedListNode<T> setNext(LinkedListNode<T> next) {
         this.next = next;
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public LinkedListNode<T> getPrev() {
         return this.prev;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public LinkedListNode<T> getNext() {
         return this.next;
     }
 
+    /**
+     * Searches for a node containing the specified value starting from this node.
+     * 
+     * @param value the value to search for
+     * @return this node if it contains the value, otherwise continues searching
+     *         in the next nodes
+     */
     @Override
     public LinkedListNode<T> search(T value) {
         return this.getElement() == value ? this : this.getNext().search(value);

@@ -25,8 +25,29 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Properties;
 
+/**
+ * Utility class for reading and writing configuration properties files.
+ */
 public class ConfigApp {
+	
+	
+	/**
+     * Constructs a new {@code ConfigApp} instance.
+     */
+	public ConfigApp() {
+		
+	}
 
+	/**
+     * Reads and loads application configuration properties from a specified file.
+     *
+     * @param filename the path to the configuration file to be read
+     * @return a {@link Properties} object containing the key-value pairs loaded from the file
+     * @throws FileNotFoundException if the specified file does not exist
+     * @throws IOException           if an I/O error occurs while reading the file
+     * @throws URISyntaxException    if a syntax error occurs, though not directly thrown 
+     *                               by the current file operations
+     */
 	public static Properties read(String filename) throws FileNotFoundException, IOException, URISyntaxException {
 
 		File configFile = new File(filename);
@@ -39,6 +60,15 @@ public class ConfigApp {
 		}
 	}
 
+	/**
+     * Saves the specified properties object to a configuration file, overwriting existing content.
+     * The file includes a comment containing the current system time in milliseconds.
+     *
+     * @param filename the path to the configuration file where properties should be saved
+     * @param props    the {@link Properties} object containing the configuration data to write
+     * @return {@code true} if the save operation completes successfully
+     * @throws IOException if an I/O error occurs while writing to the file
+     */
 	public static boolean save(String filename, Properties props) throws IOException {
 		try (FileWriter writer = new FileWriter(filename);) {
 			props.store(writer, String.valueOf(System.currentTimeMillis()));

@@ -29,17 +29,45 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Manages database lifecycle operations including connection initialization, 
+ * query execution, and resource cleanup.
+ * Implements {@link Closeable} to support try-with-resources blocks.
+ */
 public class DatabaseManager implements Closeable {
 
+	/**
+     * Logger instance for recording database lifecycle events and errors.
+     */
     private static final Logger logger = LoggerFactory.getLogger(DatabaseManager.class);
 
+    /**
+     * The active connection instance to the database.
+     */
     private Connection con;
 
+    /**
+     * The database user account name.
+     */
     private String username;
+    
+    /**
+     * The password corresponding to the database user.
+     */
     private String password;
 
+    /**
+     * The JDBC connection URL string.
+     */
     private String url;
 
+    /**
+     * Constructs a new {@code DatabaseManager} with the specified credentials and URL.
+     *
+     * @param username the database user account name
+     * @param password the password corresponding to the database user
+     * @param url      the JDBC connection URL string
+     */
     public DatabaseManager(String username, String password, String url) {
         this.username = username;
         this.password = password;
@@ -48,10 +76,18 @@ public class DatabaseManager implements Closeable {
 
     }
 
+    /**
+     * Initializes the database connection using the configured credentials and URL.
+     *
+     * @throws Exception if a database access error occurs during connection establishment
+     */
     public void init() throws Exception {
         con = Jdbc.getConnection(url, username, password);
     }
 
+    /**
+     * Releasing the active database connection and logs any cleanup errors.
+     */
     public void shutdown() {
         try {
             logger.info("releasing database connection");
@@ -61,11 +97,24 @@ public class DatabaseManager implements Closeable {
         }
     }
 
+    /**
+     * Closes the database manager resources by delegating to {@link #shutdown()}.
+     * This method enables compatibility with try-with-resources statements.
+     *
+     * @throws IOException if an I/O error occurs during resource closure
+     */
     @Override
     public void close() throws IOException {
         shutdown();
     }
 
+    /**
+     * Executes a given SQL query string and transforms the resulting {@link ResultSet} 
+     * into a list-of-maps layout wrapped inside a {@code Result} container.
+     *
+     * @param query the SQL query string to be executed
+     * @return a {@code Result} object detailing operation success and matching records
+     */
     public Result execute(String query) {
         Result res = new Result();
         try (Statement stmt = con.createStatement();

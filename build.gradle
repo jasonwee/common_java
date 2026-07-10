@@ -7,20 +7,25 @@
  */
 
 // Apply the java-library plugin to add support for Java Library
-apply plugin: 'java-library'
-apply plugin: 'eclipse'
-apply plugin: 'maven'
-apply plugin: 'signing'
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'eclipse'
+    id 'signing'
+}
 
 group = "ch.weetech"
-archivesBaseName = "common-java"
-version = "0.0.12"
+version = "0.0.13"
+
+base {
+    archivesName = "common-java"
+}
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // Use jcenter for resolving your dependencies.
+    // Use mavenCentral for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -45,7 +50,7 @@ dependencies {
     // JUnit 5 (jupiter) and mockito dependencies
     // Since the mockito-inline library replaced the mockito-core library it is possible to mock final classes and static methods
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
-    testImplementation 'org.mockito:mockito-inline:4.11.0'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
     // Note that junit-jupiter-engine is the main JUnit 5 library, and junit-platform-launcher is used with the Maven plugin and IDE launcher.
     testImplementation 'org.junit.platform:junit-platform-launcher:1.9.3'
     // Maven Surefire plugin to run our test classes using the new JUnit platform launcher
@@ -54,10 +59,10 @@ dependencies {
     testImplementation 'org.junit.platform:junit-platform-runner:1.9.3'
     testImplementation 'org.junit.vintage:junit-vintage-engine:5.9.3'
     // Mockito provides an implementation for JUnit5 extensions in the library mockito-junit-jupiter
-    testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.23.0'
 
     // power mockito does not work with junit5 yet
-    //testImplementation 'org.powermock:powermock-api-mockito2:2.0.7'
+    //testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
 
 }
 
@@ -72,67 +77,62 @@ task copyDependencies(type: Copy) {
 }
 //---- dump all current dependencies to dependencies dir
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
 
-artifacts {
-    archives javadocJar, sourcesJar
+            pom {
+                name = 'common-java'
+                description = 'java common utilities'
+                url = 'https://github.com/jasonwee/common_java'
+
+                scm {
+                    connection = 'scm:git:git://github.com/jasonwee/common_java.git'
+                    developerConnection = 'scm:git:ssh://github.com:jasonwee/common_java.git'
+                    url = 'https://github.com/jasonwee/common_java.git'
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'jasonwee'
+                        name = 'Jason Wee'
+                        email = 'jason@weetech.ch'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            // Dynamically switches between release and snapshot endpoints
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            credentials {
+                username = ossrhToken
+                password = ossrhTokenPassword
+            }
+        }
+    }
 }
 
 signing {
-    sign configurations.archives
-}
-
-uploadArchives {
-  repositories {
-    mavenDeployer {
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-      repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        authentication(userName: ossrhToken, password: ossrhTokenPassword)
-      }
-
-      snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-        authentication(userName: ossrhToken, password: ossrhTokenPassword)
-      }
-
-      pom.project {
-        name 'common-java'
-        packaging 'jar'
-        // optionally artifactId can be defined here
-        description 'java common utilities'
-        url 'https://github.com/jasonwee/common_java'
-
-        scm {
-          connection 'scm:git:git://github.com/jasonwee/common_java.git'
-          developerConnection 'scm:git:ssh://github.com:jasonwee/common_java.git'
-          url 'https://github.com/jasonwee/common_java.git'
-        }
-
-        licenses {
-          license {
-            name 'The Apache License, Version 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-          }
-        }
-
-        developers {
-          developer {
-            id 'jasonwee'
-            name 'Jason Wee'
-            email 'jason@weetech.ch'
-          }
-        }
-      }
-    }
-  }
+    sign publishing.publications.mavenJava
 }
 
 eclipse {

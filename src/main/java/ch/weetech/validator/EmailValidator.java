@@ -17,16 +17,37 @@
  */
 package ch.weetech.validator;
 
+/**
+ * Validates email addresses by enforcing length constraints and RFC syntax compliance.
+ * <p>
+ * This class inherits from {@link Validator} and parses string payloads to verify both 
+ * the local-part and the domain-part of an email address based on strict structural rules.
+ * </p>
+ */
+@SuppressWarnings("doclint:missing")
 public class EmailValidator extends Validator<String> {
 
+	/**
+     * Set of special characters excluded from the local part of an unquoted address, 
+     * excluding the dot and at-sign characters.
+     */
     private static final String specialsNoDotNoAt = "()<>,;:\\\"[]";
+    
+    /**
+     * Combined set of illegal characters for unquoted local parts, including the at-sign separator.
+     */
     private static final String specialsNoDot = specialsNoDotNoAt
              + "@";
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Validates whether the given string is a syntactically correct email address.
+     * <p>
+     * Rejects null inputs, empty strings, and inputs exceeding the maximum 
+     * standard SMTP limit of 320 characters.
+     * </p>
      *
-     * @see net.opentracker.validator.field.Validator#isValid(java.lang.Object)
+     * @param v the email address string to validate
+     * @return {@code true} if the email syntax is valid; {@code false} otherwise
      */
     @Override
     public boolean isValid(String v) {
@@ -46,7 +67,20 @@ public class EmailValidator extends Validator<String> {
         return true;
     }
 
-    // mail-api/api/src/main/java/jakarta/mail/internet/InternetAddress.java
+    /**
+     * Core syntax checking routine that parses local-parts, routing paths, and domain labels.
+     * 
+     * mail-api/api/src/main/java/jakarta/mail/internet/InternetAddress.java
+     * <p>
+     * Validates character sets, quoting constraints, structural dot configurations, 
+     * and literal domain formatting rules.
+     * </p>
+     *
+     * @param addr      the raw email string to inspect
+     * @param routeAddr {@code true} if RFC 822 source routing syntax is permitted
+     * @param validate  {@code true} if a final domain-part is strictly required
+     * @throws IllegalArgumentException if any syntactic structural or character violation is discovered
+     */
     private static void checkAddress(String addr, boolean routeAddr,
         boolean validate) throws IllegalArgumentException {
 
@@ -207,15 +241,36 @@ public class EmailValidator extends Validator<String> {
     }
 
     /**
+     * Finds the index of the first occurrence of any character from a search set.
+     * 
      * Return the first index of any of the characters in "any" in "s", or -1 if
      * none are found.
+     * 
+     * <p>
+     * Scans the target string from the beginning (index 0).
+     * </p>
      *
-     * This should be a method on String.
+     * @param s   the string to search within
+     * @param any the string containing the set of characters to search for
+     * @return the zero-based index of the first matching character; {@code -1} if no match is found
      */
     private static int indexOfAny(String s, String any) {
         return indexOfAny(s, any, 0);
     }
 
+    /**
+     * Finds the index of the first occurrence of any character from a search set, starting at a specified index.
+     * <p>
+     * Iterates through the target string from the start index up to its length. 
+     * Catches index out of bound anomalies to return a safe fallback value.
+     * </p>
+     *
+     * @param s     the string to search within
+     * @param any   the string containing the set of characters to search for
+     * @param start the position in the target string to begin the search from
+     * @return the zero-based index of the first matching character at or after the start position; 
+     *         {@code -1} if no match is found or if the index is out of bounds
+     */
     private static int indexOfAny(String s, String any, int start) {
         try {
             int len = s.length();

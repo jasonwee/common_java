@@ -22,8 +22,32 @@ import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+/**
+ * A utility class providing common helper routines for managing HTTP client communications.
+ * <p>
+ * This class abstracts lower-level processing operations such as structural content transformation 
+ * and network transport stream data formatting.
+ * </p>
+ */
+@SuppressWarnings("doclint:missing")
 public class HttpUtil {
 
+	/**
+     * Converts a map of key-value properties into a URL-encoded form data byte stream payload.
+     * <p>
+     * Iterates through the given key-value collection, stringifies all entries, and safely encodes them 
+     * matching the {@code application/x-www-form-urlencoded} specification using UTF-8 formatting rules.
+     * The resulting encoded key-value pairs are bound together sequentially via ampersand flags.
+     * </p>
+     * <p>
+     * For details regarding the format standards of form post requests, see: 
+     * {@code https://w3.org}
+     * </p>
+     *
+     * @param data a map containing the original data parameters to serialize into the form structure
+     * @return a stateful reactive byte stream publisher that contains the final serialized key-value form layout
+     * @throws NullPointerException if the input data map context stringifies null fields
+     */
     public static HttpRequest.BodyPublisher buildFormDataFromMap(Map<Object, Object> data) {
          var builder = new StringBuilder();
             for (Map.Entry<Object, Object> entry : data.entrySet()) {

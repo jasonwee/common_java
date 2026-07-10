@@ -17,9 +17,31 @@
  */
 package ch.weetech.string;
 
+/**
+ * A utility class for converting data between hexadecimal strings and byte arrays.
+ * <p>
+ * This class provides low-level decoding and encoding routines optimized for 
+ * performance without relying on external cryptography or XML framing libraries.
+ * </p>
+ * 
+ * @see <a href="https://stackoverflow.com/a/11139098/775849">Stack Overflow Source Algorithm</a>
+ */
+@SuppressWarnings("doclint:missing")
 public class Hex {
 
-    // https://stackoverflow.com/a/11139098/775849
+	/**
+     * Converts a hexadecimal string representation into an equivalent byte array.
+     * 
+     * https://stackoverflow.com/a/11139098/775849
+     * <p>
+     * The input string must have an even number of characters and consist only of 
+     * valid hexadecimal characters ({@code 0-9}, {@code A-F}, {@code a-f}).
+     * </p>
+     *
+     * @param s the hexadecimal string to decode
+     * @return a byte array containing the decoded binary data
+     * @throws IllegalArgumentException if the string length is odd or contains non-hexadecimal characters
+     */
     public static byte[] toByteArray(String s) {
         final int len = s.length();
 
@@ -43,6 +65,12 @@ public class Hex {
         return out;
     }
 
+    /**
+     * Converts a single hexadecimal character into its base-10 integer equivalent.
+     *
+     * @param ch the character to convert (e.g., 'A' or 'a')
+     * @return the integer value between 0 and 15, or {@code -1} if the character is invalid
+     */
     private static int hexToBin(char ch) {
         if ('0' <= ch && ch <= '9') {
             return ch - '0';
@@ -56,8 +84,17 @@ public class Hex {
         return -1;
     }
 
+    /**
+     * Pre-compiled lookup table for converting nibbles to uppercase hexadecimal characters.
+     */
     private static final char[] hexCode = "0123456789ABCDEF".toCharArray();
 
+    /**
+     * Encodes a byte array into a continuous uppercase hexadecimal string.
+     *
+     * @param data the byte array to encode
+     * @return an uppercase hexadecimal string representation of the bytes
+     */
     public static String toHexString(byte[] data) {
         StringBuilder r = new StringBuilder(data.length * 2);
         for (byte b : data) {

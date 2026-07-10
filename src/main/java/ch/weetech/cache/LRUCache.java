@@ -22,6 +22,21 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+* A thread-safe Least Recently Used (LRU) Cache implementation.
+* 
+* <p>This cache maintains a fixed maximum size and automatically evicts the least
+* recently used item when the capacity is reached. It provides O(1) time complexity
+* for both {@code get} and {@code put} operations through a combination of a
+* {@link ConcurrentHashMap} and a custom {@link DoublyLinkedList}.</p>
+* 
+* <p>Thread-safety is achieved using a {@link ReentrantReadWriteLock}, allowing
+* concurrent reads while ensuring exclusive writes.</p>
+* 
+* @param <K> the type of keys maintained by this cache
+* @param <V> the type of mapped values
+* @see Cache
+*/
 public class LRUCache<K, V> implements Cache<K, V> {
 
     private int size;
@@ -29,12 +44,29 @@ public class LRUCache<K, V> implements Cache<K, V> {
     private DoublyLinkedList<CacheElement<K, V>> doublyLinkedList;
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
+    /**
+     * Constructs a new LRUCache with the specified maximum capacity.
+     * 
+     * @param size the maximum number of entries this cache can hold
+     */
     public LRUCache(int size) {
         this.size = size;
         this.linkedListNodeMap = new ConcurrentHashMap<>(size);
         this.doublyLinkedList = new DoublyLinkedList<>();
     }
 
+    /**
+     * Associates the specified value with the specified key in this cache.
+     * If the key already exists, its value is updated and the entry is moved
+     * to the front (most recently used).
+     * 
+     * <p>If the cache is full, the least recently used entry is evicted before
+     * inserting the new entry.</p>
+     * 
+     * @param key   the key with which the specified value is to be associated
+     * @param value the value to be associated with the specified key
+     * @return {@code true} if the operation was successful, {@code false} otherwise
+     */
     @Override
     public boolean put(K key, V value) {
         this.lock.writeLock().lock();
@@ -60,6 +92,16 @@ public class LRUCache<K, V> implements Cache<K, V> {
         }
     }
 
+    /**
+     * Returns the value to which the specified key is mapped, or empty if this
+     * cache contains no mapping for the key.
+     * 
+     * <p>Accessing an entry via this method moves it to the front of the cache
+     * (marking it as most recently used).</p>
+     * 
+     * @param key the key whose associated value is to be returned
+     * @return an {@link Optional} containing the value, or empty if not present
+     */
     @Override
     public Optional<V> get(K key) {
         this.lock.readLock().lock();
@@ -75,6 +117,11 @@ public class LRUCache<K, V> implements Cache<K, V> {
         }
     }
 
+    /**
+     * Returns the current number of entries in this cache.
+     * 
+     * @return the number of key-value mappings in this cache
+     */
     @Override
     public int size() {
         this.lock.readLock().lock();
@@ -85,11 +132,19 @@ public class LRUCache<K, V> implements Cache<K, V> {
         }
     }
 
+    /**
+     * Returns {@code true} if this cache contains no entries.
+     * 
+     * @return {@code true} if this cache is empty
+     */
     @Override
     public boolean isEmpty() {
         return size() == 0;
     }
 
+    /**
+     * Removes all entries from this cache.
+     */
     @Override
     public void clear() {
         this.lock.writeLock().lock();
@@ -101,6 +156,11 @@ public class LRUCache<K, V> implements Cache<K, V> {
         }
     }
 
+    /**
+     * Evicts the least recently used element from the cache.
+     * 
+     * @return {@code true} if an element was successfully evicted
+     */
     private boolean evictElement() {
         this.lock.writeLock().lock();
         try {

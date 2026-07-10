@@ -19,16 +19,56 @@ package ch.weetech.cache;
 
 import java.util.Optional;
 
+/**
+ * A key-value caching interface for temporary data storage and retrieval.
+ *
+ * @param <K> the type of keys maintained by this cache
+ * @param <V> the type of mapped values
+ */
 public interface Cache<K, V> {
 
+	/**
+     * Associates the specified value with the specified key in this cache.
+     * If the cache previously contained a mapping for the key, the old value
+     * is replaced by the specified value.
+     *
+     * @param key   key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return {@code true} if the operation succeeded, {@code false} otherwise
+     * @throws NullPointerException if the specified key or value is null
+     *                              (depending on the implementation)
+     */
     boolean put(K key, V value);
 
+    /**
+     * Returns an {@link Optional} containing the value to which the specified key is mapped,
+     * or an empty {@code Optional} if this cache contains no mapping for the key.
+     *
+     * @param key the key whose associated value is to be returned
+     * @return an {@code Optional} containing the value, or empty if not found
+     * @throws NullPointerException if the specified key is null 
+     *                              (depending on the implementation)
+     */
     Optional<V> get(K key);
 
+    /**
+     * Returns the number of key-value mappings in this cache.
+     *
+     * @return the number of key-value mappings in this cache
+     */
     int size();
 
+    /**
+     * Returns {@code true} if this cache contains no key-value mappings.
+     *
+     * @return {@code true} if this cache contains no key-value mappings
+     */
     boolean isEmpty();
 
+    /**
+     * Removes all of the mappings from this cache.
+     * The cache will be empty after this call returns.
+     */
     void clear();
 
 }

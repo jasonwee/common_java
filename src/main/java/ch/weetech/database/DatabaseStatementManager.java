@@ -28,10 +28,37 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+/**
+ * Utility class for executing prepared database statements with dynamic parameters 
+ * and automated execution performance monitoring.
+ */
 public class DatabaseStatementManager {
 
+	/**
+     * Logger instance for tracing SQL query performance and processing errors.
+     */
     private static final Logger logger = LoggerFactory.getLogger(DatabaseStatementManager.class);
+    
+    /**
+     * Constructs a new {@code DatabaseStatementManager} instance.
+     */
+    public DatabaseStatementManager() {
+    	
+    }
 
+    /**
+     * Executes a parametrized SQL query, maps the bind variables from a map container, 
+     * and transforms the resulting database cursor into a structured list of maps.
+     * <p>
+     * This method tracks query execution duration and logs alerts at varying urgency 
+     * levels if execution thresholds (1 second and 10 seconds) are breached.
+     * </p>
+     *
+     * @param preparedStatement the template SQL query string containing placeholders
+     * @param hashmap           the mapping configuration containing parameter bind values
+     * @param ds                the active data source provider supplying connections
+     * @return a list containing query records as key-value pairs, or {@code null} if an exception occurs
+     */
     public static List<Map<String, Object>> getHashMapList(String preparedStatement, Map<String, Object> hashmap, DataSource ds) {
 
         List<Map<String, Object>> result = null;

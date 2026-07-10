@@ -38,6 +38,11 @@ import javax.mail.internet.MimeMultipart;
 
 
 /**
+ * 
+ * Utility application class responsible for handling email transmission operations.
+ * Provides capabilities to configure mail sessions, authenticate with SMTP servers, 
+ * and assemble multipart email messages.
+ * 
  * https://developers.google.com/apps-script/reference/mail
  *
  * https://www.tutorialspoint.com/java/java_sending_email.htm
@@ -47,8 +52,32 @@ import javax.mail.internet.MimeMultipart;
  * @author jason
  *
  */
+@SuppressWarnings("doclint:missing")
 public class EmailApp {
 
+	/**
+     * Sends a text-based email message with optional CC, BCC, and file attachments 
+     * using the provided SMTP server configuration.
+     * 
+     * <p>This method initializes server connections, maps custom email abstractions 
+     * into standard internet addresses, handles optional TLS authentication, 
+     * builds the appropriate mime-type message tree, and executes transmission over 
+     * the network transport layers.</p>
+     * 
+     * @param from the sender's email configuration containing address and display name
+     * @param recipients the primary (TO) recipients list; must not be null or empty
+     * @param cc the optional carbon copy (CC) recipients list; pass null if none
+     * @param bcc the optional blind carbon copy (BCC) recipients list; pass null if none
+     * @param subject the main subject header text of the email
+     * @param body the structured message body wrapper containing text and content-type information
+     * @param attachments the optional file attachments collection; pass null if none
+     * @param smtp the active SMTP configurations containing host, port, credentials, and TLS settings
+     * @param debug boolean flag to toggle system level verbose logging out to standard display streams
+     * @return true if compilation succeeds and message is routed safely to transport pipeline layers
+     * @throws AddressException if email address compilation, formatting parsing, or layout failure occurs
+     * @throws MessagingException if server authentication blocks, connection drops, or transmission breaks
+     * @throws UnsupportedEncodingException if character maps fail during personalization assembly steps
+     */
     public static boolean sendText(EmailAddress from, List<EmailAddress> recipients, List<EmailAddress> cc, List<EmailAddress> bcc, String subject, EmailBody body,
             List<EmailAttachment> attachments, SMTP smtp, boolean debug) throws AddressException, MessagingException, UnsupportedEncodingException {
         assert smtp != null;
@@ -172,7 +201,30 @@ public class EmailApp {
 
         return true;
     }
-
+    
+    /**
+     * Sends an HTML-formatted email message with optional CC, BCC, and file attachments 
+     * using the specified SMTP server configuration.
+     * 
+     * <p>This method initializes server properties, sets up optional authenticated 
+     * SMTP sessions, converts custom address domains into internet addresses, sets 
+     * UTF-8 subject layouts, and builds either structured multipart-alternative or 
+     * multipart-mixed MIME message trees before transmission.</p>
+     * 
+     * @param from the sender's email configuration containing address and display name
+     * @param recipients the primary (TO) recipients list; must not be null or empty
+     * @param cc the optional carbon copy (CC) recipients list; pass null if none
+     * @param bcc the optional blind carbon copy (BCC) recipients list; pass null if none
+     * @param subject the main subject header text of the email
+     * @param msgHtml the structured message body wrapper containing HTML markup and content-type tags
+     * @param attachments the optional file attachments collection; pass null if none
+     * @param smtp the active SMTP configurations containing host, port, credentials, and TLS settings
+     * @param debug boolean flag to toggle system level verbose logging out to standard display streams
+     * @return true if compilation succeeds and message is routed safely to transport pipeline layers
+     * @throws AddressException if email address compilation, formatting parsing, or layout failure occurs
+     * @throws MessagingException if server authentication blocks, connection drops, or transmission breaks
+     * @throws UnsupportedEncodingException if character maps fail during personalization assembly steps
+     */
     public static boolean sendHtml(EmailAddress from, List<EmailAddress> recipients, List<EmailAddress> cc, List<EmailAddress> bcc, String subject, EmailBody msgHtml,
             List<EmailAttachment> attachments, SMTP smtp, boolean debug) throws AddressException, MessagingException, UnsupportedEncodingException {
         assert smtp != null;
@@ -303,7 +355,33 @@ public class EmailApp {
         return true;
     }
 
-    // aka alternative
+    /**
+     * aka alternative
+     * 
+     * Sends a multi-format email containing both plain text and HTML alternatives, 
+     * along with optional CC, BCC, and file attachments using the specified SMTP server configuration.
+     * 
+     * <p>This method initializes server properties, sets up optional authenticated 
+     * SMTP sessions, converts custom address domains into internet addresses, sets 
+     * UTF-8 subject layouts, and builds either structured multipart-alternative or 
+     * nested multipart-mixed (containing alternative text variants) MIME message trees 
+     * before transmission.</p>
+     * 
+     * @param from the sender's email configuration containing address and display name
+     * @param recipients the primary (TO) recipients list; must not be null or empty
+     * @param cc the optional carbon copy (CC) recipients list; pass null if none
+     * @param bcc the optional blind carbon copy (BCC) recipients list; pass null if none
+     * @param subject the main subject header text of the email
+     * @param msgText the structured message body wrapper containing the plain text version of the message
+     * @param msgHtml the structured message body wrapper containing HTML markup and content-type tags
+     * @param attachments the optional file attachments collection; pass null if none
+     * @param smtp the active SMTP configurations containing host, port, credentials, and TLS settings
+     * @param debug boolean flag to toggle system level verbose logging out to standard display streams
+     * @return true if compilation succeeds and message is routed safely to transport pipeline layers
+     * @throws AddressException if email address compilation, formatting parsing, or layout failure occurs
+     * @throws MessagingException if server authentication blocks, connection drops, or transmission breaks
+     * @throws UnsupportedEncodingException if character maps fail during personalization assembly steps
+     */
     public static boolean sendTextAndHtml(EmailAddress from, List<EmailAddress> recipients, List<EmailAddress> cc, List<EmailAddress> bcc, String subject, EmailBody msgText, EmailBody msgHtml,
             List<EmailAttachment> attachments, SMTP smtp, boolean debug) throws AddressException, MessagingException, UnsupportedEncodingException {
         assert smtp != null;
