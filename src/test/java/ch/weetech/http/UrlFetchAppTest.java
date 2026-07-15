@@ -93,7 +93,8 @@ public class UrlFetchAppTest {
         data.put("custom", "secret");
         data.put("ts", System.currentTimeMillis());
         
-        String url = "https://httpbin.org/post";
+        // https://httpbin.org/post
+        String url = "https://dlptest.com/api/http-post/";
         String contentType =  "application/x-www-form-urlencoded";
         
 		try {
