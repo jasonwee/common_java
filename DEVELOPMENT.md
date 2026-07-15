@@ -80,13 +80,13 @@ $ ./gradlew clean build
    $ # Test publish locally first
    $ ./gradlew publishToMavenLocal
    $ # Publish to Maven Central Portal
-   $ ./gradlew publishMavenJavaPublicationToMavenCentralRepository
+   $ ./gradlew publishAllPublicationsToCentralPortal
    ```
 3. # this is old url: login to https://s01.oss.sonatype.org/#stagingRepositories
    # new url: https://central.sonatype.com/publishing/namespaces
-   * click close
-   * if all verifications run ok,  then click release
-4. check release
+   * click deployments
+   * if all verifications run ok,  then click Publish
+4. check publish
    * https://mvnrepository.com/search?q=ch.weetech
    * https://search.maven.org/search?q=ch.weetech
    * https://s01.oss.sonatype.org/content/repositories/releases/ch/weetech/
