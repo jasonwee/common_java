@@ -12,10 +12,11 @@ plugins {
     id 'maven-publish'
     id 'eclipse'
     id 'signing'
+    id 'com.gradleup.nmcp' version '1.6.1'
 }
 
 group = "ch.weetech"
-version = "0.0.13"
+version = "0.0.14"
 
 base {
     archivesName = "common-java"
@@ -39,25 +40,25 @@ dependencies {
     //implementation 'javax.mail:javax.mail-api:1.6.2'
     // https://mvnrepository.com/artifact/javax.activation/activation
     //implementation 'javax.activation:activation:1.1'
-    implementation 'com.sun.mail:jakarta.mail:1.6.7'
+    implementation 'com.sun.mail:jakarta.mail:1.6.8'
 
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-    implementation 'org.slf4j:slf4j-api:1.7.36'
+    implementation 'org.slf4j:slf4j-api:2.0.18'
     // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
-    implementation 'com.mysql:mysql-connector-j:9.1.0'
+    implementation 'com.mysql:mysql-connector-j:9.7.0'
 
 
     // JUnit 5 (jupiter) and mockito dependencies
     // Since the mockito-inline library replaced the mockito-core library it is possible to mock final classes and static methods
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.1.1'
     testImplementation 'org.mockito:mockito-inline:5.2.0'
     // Note that junit-jupiter-engine is the main JUnit 5 library, and junit-platform-launcher is used with the Maven plugin and IDE launcher.
-    testImplementation 'org.junit.platform:junit-platform-launcher:1.9.3'
+    testImplementation 'org.junit.platform:junit-platform-launcher:6.1.1'
     // Maven Surefire plugin to run our test classes using the new JUnit platform launcher
     testImplementation 'org.junit.platform:junit-platform-surefire-provider:1.3.2'
     // JUnit4 (vintage) compatible, for IDEs that have no support for JUnit 5 yet, let's include these dependencies
-    testImplementation 'org.junit.platform:junit-platform-runner:1.9.3'
-    testImplementation 'org.junit.vintage:junit-vintage-engine:5.9.3'
+    testImplementation 'org.junit.platform:junit-platform-runner:1.14.4'
+    testImplementation 'org.junit.vintage:junit-vintage-engine:6.1.1'
     // Mockito provides an implementation for JUnit5 extensions in the library mockito-junit-jupiter
     testImplementation 'org.mockito:mockito-junit-jupiter:5.23.0'
 
@@ -87,6 +88,8 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
 
+            artifactId = "common-java"
+
             pom {
                 name = 'common-java'
                 description = 'java common utilities'
@@ -95,13 +98,13 @@ publishing {
                 scm {
                     connection = 'scm:git:git://github.com/jasonwee/common_java.git'
                     developerConnection = 'scm:git:ssh://github.com:jasonwee/common_java.git'
-                    url = 'https://github.com/jasonwee/common_java.git'
+                    url = 'https://github.com/jasonwee/common_java'
                 }
 
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
 
@@ -116,18 +119,27 @@ publishing {
         }
     }
 
+    // This block ONLY handles snapshot builds
     repositories {
-        maven {
-            // Dynamically switches between release and snapshot endpoints
-            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-
-            credentials {
-                username = ossrhToken
-                password = ossrhTokenPassword
+        if (version.endsWith('SNAPSHOT')) {
+            maven {
+                url = "https://central.sonatype.com/repository/maven-snapshots/"
+                credentials {
+                    username = ossrhToken
+                    password = ossrhTokenPassword
+                }
             }
         }
+    }
+}
+
+nmcp {
+    publishAllPublicationsToCentralPortal {
+        username = ossrhToken
+        password = ossrhTokenPassword
+
+        // Optional: Set to 'AUTOMATIC' if you want it to publish immediately without manual confirmation on the portal web UI
+        publishingType = 'USER_MANAGED'
     }
 }
 
