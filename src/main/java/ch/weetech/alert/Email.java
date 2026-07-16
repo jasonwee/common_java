@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class Email {
 
+    /** The maximum length of an email address. */
     public static int EMAIL_MAX_LENGTH = 320;
 
     private static final Logger logger = LoggerFactory.getLogger(Email.class);
