@@ -17,7 +17,7 @@
  */
 package ch.weetech.alert;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -29,8 +29,15 @@ public class EmailTest {
         assertFalse(Email.isValidEmail(null));
         assertFalse(Email.isValidEmail(""));
         assertFalse(Email.isValidEmail("i-am-a-long-character-1i-am-a-long-character-2i-am-a-long-character-3i-am-a-long-character-4i-am-a-long-character-5i-am-a-long-character-6i-am-a-long-character-7i-am-a-long-character-8i-am-a-long-character-9i-am-a-long-character-10i-am-a-long-character-11i-am-a-long-character-12i-am-a-long-character-13i-am-a-long-character-14@foo-bar-1foo-bar-2foo-bar-3foo-bar-4foo-bar-5foo-bar-6foo-bar-7foo-bar-8foo-bar-9foo-bar-10.com"));
+        assertFalse(Email.isValidEmail("not-an-email"));
+        assertFalse(Email.isValidEmail("@missing-local.com"));
+        assertFalse(Email.isValidEmail("foo@"));
+        assertFalse(Email.isValidEmail("  "));
+        assertFalse(Email.isValidEmail("A".repeat(312)+"@foo.com"));
         assertTrue(Email.isValidEmail("foo@bar.com"));
         assertTrue(Email.isValidEmail("foo+jason@bar.com"));
+        assertTrue(Email.isValidEmail(" foo+jason@bar.com "));
+        assertTrue(Email.isValidEmail("A".repeat(311)+"@foo.com"));
     }
 
 }
