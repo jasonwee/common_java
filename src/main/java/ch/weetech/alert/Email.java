@@ -20,36 +20,43 @@ package ch.weetech.alert;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Abstract blueprint defining core structures, formatting configurations, 
  * and utility validation tools for handling email messages.
  */
 public abstract class Email {
 
-	/**
+    public static int EMAIL_MAX_LENGTH = 320;
+
+    private static final Logger logger = LoggerFactory.getLogger(Email.class);
+
+    /**
      * Defines the standard MIME multipart subtype structures used to assemble 
      * and render various layout combinations within an email body.
      */
     public enum Type {
-    	/**
+        /**
          * Used when body parts are independent and need to be bundled sequentially 
          * (e.g., combining plain body text alongside independent file attachments).
          */
         mixed,
-        
+
         /**
          * Used when content is duplicated across different formats, allowing the client 
          * to render the best option (e.g., providing both Plain Text and HTML versions).
          */
         alternative,
-        
+
         /**
          * Used when body parts reference each other internally to display compound content 
          * (e.g., an HTML body displaying an embedded inline image attachment).
          */
         related,
     }
-    
+
     /**
      * Initializes core abstract email configurations.
      * <p>
@@ -57,10 +64,7 @@ public abstract class Email {
      * constructors to establish baseline email structures.
      * </p>
      */
-    protected Email() {
-        // Initialization code if needed
-    }
-
+    protected Email() {}
 
     /**
      * Validates if a given string adheres to standard email structure constraints.
@@ -75,22 +79,21 @@ public abstract class Email {
      *         {@code false} otherwise
      */
     public static boolean isValidEmail(String email) {
-        if (email == null) {
+        if (email == null || email.trim().isEmpty()) {
             return false;
         }
-        if (email.length() >= 320) {
+        if (email.length() >= EMAIL_MAX_LENGTH) {
             return false;
         }
 
-        boolean result = false;
         try {
             InternetAddress emailAddr = new InternetAddress(email);
             emailAddr.validate();
-            result = true;
+            return true;
         } catch (AddressException ex) {
-
+            logger.error("Invalid email " + email, ex);
         }
-        return result;
+        return false;
     }
 
 }
