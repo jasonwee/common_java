@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "ch.weetech"
-version = "0.0.14"
+version = "0.0.15"
 
 base {
     archivesName = "common-java"
