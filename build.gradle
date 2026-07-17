@@ -40,7 +40,7 @@ dependencies {
     //implementation 'javax.mail:javax.mail-api:1.6.2'
     // https://mvnrepository.com/artifact/javax.activation/activation
     //implementation 'javax.activation:activation:1.1'
-    implementation 'com.sun.mail:jakarta.mail:1.6.8'
+    implementation 'com.sun.mail:jakarta.mail:2.0.2'
 
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     implementation 'org.slf4j:slf4j-api:2.0.18'
