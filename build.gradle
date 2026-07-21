@@ -144,7 +144,22 @@ nmcp {
 }
 
 signing {
-    sign publishing.publications.mavenJava
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+
+    if (signingKey && signingPassword) {
+        // [GITHUB ACTIONS PATH]
+        // 1. Configure credentials FIRST
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        // 2. Trigger signing SECOND
+        sign publishing.publications.mavenJava
+    } else {
+        // [LOCAL MACHINE PATH]
+        // 1. Tell Gradle to pass the task down to your computer's native GPG installation command line
+        useGpgCmd()
+        // 2. Trigger signing SECOND
+        sign publishing.publications.mavenJava
+    }
 }
 
 eclipse {
