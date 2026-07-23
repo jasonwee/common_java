@@ -1,0 +1,38 @@
+name: Build, Sign, and Publish to Maven Central Portal
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Enables manual execution from the GitHub Actions UI
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Configured to use JDK 21
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      # Ensures the workflow can run the wrapper script
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Safely injects tokens and key data directly into Gradle
+      - name: Build, Sign, and Publish
+        run: |
+          ./gradlew publishAllPublicationsToCentralPortal \
+            -PossrhToken="${{ secrets.OSSRH_TOKEN }}" \
+            -PossrhTokenPassword="${{ secrets.OSSRH_TOKEN_PASSWORD }}" \
+            -PsigningKey="${{ secrets.GPG_SIGNING_KEY }}" \
+            -PsigningPassword="${{ secrets.GPG_SIGNING_PASSWORD }}"
