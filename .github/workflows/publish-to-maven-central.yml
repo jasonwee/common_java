@@ -1,9 +1,9 @@
 name: Build, Sign, and Publish to Maven Central Portal
 
 on:
-  push:
-    branches:
-      - main
+  #push:
+  #  branches:
+  #    - main
   workflow_dispatch: # Enables manual execution from the GitHub Actions UI
 
 jobs:
