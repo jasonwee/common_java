@@ -27,15 +27,15 @@ package ch.weetech.alert;
  */
 public class EmailAddress extends Email {
 
-	/**
+    /**
      * The verified destination email address routing string.
      */
-    private String address;
+    private final String address;
     
     /**
      * The optional friendly display name associated with this email address entry.
      */
-    private String name;
+    private final String name;
 
     /**
      * Private constructor invoked exclusively by the inner {@link Builder} sequence.
@@ -70,7 +70,7 @@ public class EmailAddress extends Email {
      */
     public static class Builder {
 
-    	/**
+        /**
          * The temporary staging reference for the destination email routing string.
          */
         private String address;
@@ -118,9 +118,6 @@ public class EmailAddress extends Email {
          * @throws IllegalStateException if structural validation errors or blank addresses are encountered
          */
         private void validate() throws IllegalStateException {
-            if (address == null || address.trim().isEmpty()) {
-                throw new IllegalStateException("address must not be null nor empty");
-            }
             if (!Email.isValidEmail(address)) {
                 throw new IllegalStateException("invalid email address");
             }

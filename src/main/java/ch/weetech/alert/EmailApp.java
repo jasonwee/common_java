@@ -23,6 +23,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -52,8 +55,14 @@ import jakarta.mail.internet.MimeMultipart;
  * @author jason
  *
  */
-@SuppressWarnings("doclint:missing")
 public class EmailApp {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailApp.class);
+
+    /**
+     * Default constructor for the EmailApp class.
+     */
+    protected EmailApp() {}
 
 	/**
      * Sends a text-based email message with optional CC, BCC, and file attachments 
@@ -96,7 +105,6 @@ public class EmailApp {
             prop.put(SMTP.MAIL_SMTP_AUTH, smtp.isSmtpAuth());
             prop.put(SMTP.MAIL_SMTP_STARTTLS_ENABLE, smtp.isSmtpStartTlsEnable());
 
-            //session = Session.getDefaultInstance(prop, auth);
             session = Session.getDefaultInstance(prop, new Authenticator() {
                  public PasswordAuthentication getPasswordAuthentication() {
                      String username = smtp.getSmtpUsername();
@@ -125,7 +133,9 @@ public class EmailApp {
                             return new InternetAddress(r.getAddress());
                         }
 
-                    } catch (AddressException | UnsupportedEncodingException e) { }
+                    } catch (AddressException | UnsupportedEncodingException e) {
+                        logger.error("Failed to create InternetAddress for recipient: {}", r, e);
+                    }
                     return null;
                 }).toArray(InternetAddress[]::new)
         );
@@ -140,7 +150,9 @@ public class EmailApp {
                                 return new InternetAddress(ccc.getAddress());
                             }
 
-                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        } catch (AddressException | UnsupportedEncodingException e) { 
+                            logger.error("Failed to create InternetAddress for CC recipient: {}", ccc, e);
+                        }
                         return null;
                     })
                     .toArray(InternetAddress[]::new)
@@ -157,7 +169,9 @@ public class EmailApp {
                                 return new InternetAddress(bccc.getAddress());
                             }
 
-                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        } catch (AddressException | UnsupportedEncodingException e) { 
+                            logger.error("Failed to create InternetAddress for BCC recipient: {}", bccc, e);
+                        }
                         return null;
                     })
                     .toArray(InternetAddress[]::new)
@@ -272,7 +286,9 @@ public class EmailApp {
                             return new InternetAddress(r.getAddress());
                         }
 
-                    } catch (AddressException | UnsupportedEncodingException e) { }
+                    } catch (AddressException | UnsupportedEncodingException e) {
+                        logger.error("Failed to create InternetAddress for recipient: {}", r, e);
+                    }
                     return null;
                 }).toArray(InternetAddress[]::new)
         );
@@ -287,7 +303,9 @@ public class EmailApp {
                                 return new InternetAddress(ccc.getAddress());
                             }
 
-                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        } catch (AddressException | UnsupportedEncodingException e) {
+                            logger.error("Failed to create InternetAddress for CC recipient: {}", ccc, e);
+                        }
                         return null;
                     })
                     .toArray(InternetAddress[]::new)
@@ -304,7 +322,9 @@ public class EmailApp {
                                 return new InternetAddress(bccc.getAddress());
                             }
 
-                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        } catch (AddressException | UnsupportedEncodingException e) {
+                            logger.error("Failed to create InternetAddress for BCC recipient: {}", bccc, e);
+                        }
                         return null;
                     })
                     .toArray(InternetAddress[]::new)
@@ -337,7 +357,7 @@ public class EmailApp {
             }
             msg.setContent(altAndAtt);
         } else {
-            MimeMultipart content = new MimeMultipart("alternative");
+            MimeMultipart content = new MimeMultipart(Email.Type.alternative.toString());
             MimeBodyPart html = new MimeBodyPart();
 
             html.setContent(msgHtml.getContent(), msgHtml.getContentType());
@@ -429,7 +449,9 @@ public class EmailApp {
                             return new InternetAddress(r.getAddress());
                         }
 
-                    } catch (AddressException | UnsupportedEncodingException e) { }
+                    } catch (AddressException | UnsupportedEncodingException e) {
+                        logger.error("Failed to create InternetAddress for recipient: {}", r, e);
+                    }
                     return null;
                 }).toArray(InternetAddress[]::new)
         );
@@ -444,7 +466,9 @@ public class EmailApp {
                                 return new InternetAddress(ccc.getAddress());
                             }
 
-                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        } catch (AddressException | UnsupportedEncodingException e) {
+                            logger.error("Failed to create InternetAddress for CC recipient: {}", ccc, e);
+                        }
                         return null;
                     })
                     .toArray(InternetAddress[]::new)
@@ -461,7 +485,9 @@ public class EmailApp {
                                 return new InternetAddress(bccc.getAddress());
                             }
 
-                        } catch (AddressException | UnsupportedEncodingException e) { }
+                        } catch (AddressException | UnsupportedEncodingException e) {
+                            logger.error("Failed to create InternetAddress for BCC recipient: {}", bccc, e);
+                        }
                         return null;
                     })
                     .toArray(InternetAddress[]::new)
@@ -473,7 +499,7 @@ public class EmailApp {
         if (attachments != null) {
             MimeMultipart altAndAtt = new MimeMultipart(Email.Type.mixed.toString());
 
-            MimeMultipart plainAndHtml = new MimeMultipart( "alternative" );
+            MimeMultipart plainAndHtml = new MimeMultipart(Email.Type.alternative.toString());
 
             MimeBodyPart plain = new MimeBodyPart();
             plain.setContent(msgText, "text/plain; charset=utf-8" );
@@ -504,7 +530,7 @@ public class EmailApp {
             }
             msg.setContent(altAndAtt);
         } else {
-            MimeMultipart content = new MimeMultipart("alternative");
+            MimeMultipart content = new MimeMultipart(Email.Type.alternative.toString());
             MimeBodyPart html = new MimeBodyPart();
 
             html.setContent(msgHtml.getContent(), msgHtml.getContentType());

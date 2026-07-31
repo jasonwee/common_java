@@ -31,15 +31,15 @@ public class EmailAttachment extends Email {
     /** The binary file asset associated with this attachment. 
      * file object or just text content
      */
-    private File file;
+    private final File file;
     /** The raw text payload data for this attachment. */
-    private String content;
+    private final String content;
     /** The display name or filename of the attachment. */
-    private String name;
+    private final String name;
     /** The MIME media type string (e.g., "text/plain", "application/pdf"). */
-    private String contentType;
+    private final String contentType;
     /** The encoding applied to the payload (e.g., "base64", "quoted-printable"). */
-    private String contentTransferEncoding;
+    private final String contentTransferEncoding;
 
     /**
      * Constructs an EmailAttachment instance copies fields from the builder.
@@ -185,7 +185,7 @@ public class EmailAttachment extends Email {
                  throw new IllegalStateException("either File object or text content must be set");
             }
             if (content != null && content.trim().isEmpty()) {
-                throw new IllegalStateException("either File object or text content must be set");
+                throw new IllegalStateException("text content must not be blank");
             }
             if (file != null) {
                 if (!file.exists() && file.isDirectory()) {

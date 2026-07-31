@@ -29,19 +29,17 @@ public class EmailBody extends Email {
     // alternative, mixed
     // private Type subType;
 
-	/**
+    /**
      * The MIME content type of the email body (e.g., "text/plain", "text/html").
-     * 
-     * html / text
      */
-    private String contentType;
+    private final String contentType;
 
     /**
      * The actual text or HTML payload of the email.
      * 
      * actual content
      */
-    private String content;
+    private final String content;
 
     /**
      * Constructs an EmailBody instance using the provided builder.

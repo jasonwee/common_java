@@ -20,7 +20,7 @@ package ch.weetech.alert;
 /**
  * Configuration data object for Simple Mail Transfer Protocol (SMTP) server connections.
  * 
- * https://blogs.oracle.com/javamagazine/post/exploring-joshua-blochs-builder-design-pattern-in-java
+ * @see https://blogs.oracle.com/javamagazine/post/exploring-joshua-blochs-builder-design-pattern-in-java
  * 
  * <p>
  * This class stores server endpoint coordinates, authentication flags, security configurations, 
@@ -43,12 +43,12 @@ public class SMTP {
     /** The configuration string reference name for the server authentication account secret password. */
     public static final String MAIL_SMTP_PASSWORD = "mail.smtp.password";
 
-    private String smtpHost;
-    private int smtpPort;
-    private boolean smtpAuth;
-    private boolean smtpStartTlsEnable;
-    private String smtpUsername;
-    private String smtpPassword;
+    private final String smtpHost;
+    private final int smtpPort;
+    private final boolean smtpAuth;
+    private final boolean smtpStartTlsEnable;
+    private final String smtpUsername;
+    private final String smtpPassword;
 
     /**
      * Constructs a validated SMTP connection container using state properties set inside a builder.
@@ -209,11 +209,11 @@ public class SMTP {
             if (smtpHost == null || smtpHost.isEmpty()) {
                  throw new IllegalStateException("smtpHost is required");
             }
-            if (smtpPort < 0 || smtpPort >= 65535) {
+            if (smtpPort <= 0 || smtpPort > 65535) {
                  throw new IllegalStateException("invalid smtpPort");
             }
             if (smtpAuth && (smtpUsername == null || smtpPassword == null)) {
-                 throw new IllegalStateException("smtpAuth is enabled but smtpUsername and smtpPassword is required");
+                 throw new IllegalStateException("smtpAuth is enabled but smtpUsername and smtpPassword are required");
             }
 
         }
