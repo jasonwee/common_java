@@ -20,7 +20,7 @@ package ch.weetech.alert;
 /**
  * Configuration data object for Simple Mail Transfer Protocol (SMTP) server connections.
  * 
- * @see https://blogs.oracle.com/javamagazine/post/exploring-joshua-blochs-builder-design-pattern-in-java
+ * @see <a href="https://blogs.oracle.com/javamagazine/post/exploring-joshua-blochs-builder-design-pattern-in-java">Exploring Joshua Bloch's Builder pattern in Java</a>
  * 
  * <p>
  * This class stores server endpoint coordinates, authentication flags, security configurations, 
