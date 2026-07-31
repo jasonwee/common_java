@@ -43,7 +43,8 @@ jobs:
 
     # 3. Build it
     - name: Build with Gradle
-      run: ./gradlew build \
+      run: |
+            ./gradlew build \
             -PossrhToken="${{ secrets.OSSRH_TOKEN }}" \
             -PossrhTokenPassword="${{ secrets.OSSRH_TOKEN_PASSWORD }}" \
             -PsigningKey="${{ secrets.GPG_SIGNING_KEY }}" \
