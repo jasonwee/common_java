@@ -7,7 +7,7 @@ one time project setup
 ---------------------
 ```sh
 $ gradle init --type java-library 
-$ gradle wrapper --gradle-version=9.6.1
+$ gradle wrapper --gradle-version=9.8.2
 ```
 
 how to build
@@ -60,7 +60,7 @@ $ ./gradlew --version
 2. check gradle current release version at https://gradle.org/releases/
 3. upgrade it if no problem
 ```
-$ ./gradlew wrapper --gradle-version 9.6.1
+$ ./gradlew wrapper --gradle-version 9.8.2
 ```
 4. check again version and test build
 ```
